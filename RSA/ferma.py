@@ -10,8 +10,8 @@ def find_prime_factorisation(n):
         isq_y = isqrt(y)
         if isq_y ** 2 == y:
             x = s + k
-            a = s + k + isq_y
-            b = s + k - isq_y
+            a = x + isq_y
+            b = x - isq_y
             return a, b
 
 
