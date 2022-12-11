@@ -1,12 +1,13 @@
 #include <iostream>
 #include "vector"
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
 string to_binary(unsigned int n, unsigned int l) {
     string res;
-    for (auto i = 0; i < l; i++) {
+    for (unsigned int i = 0; i < l; i++) {
         if (n == 0) {
             res.push_back('0');
             continue;
@@ -15,7 +16,7 @@ string to_binary(unsigned int n, unsigned int l) {
         n = n / 2;
     }
 
-    std::reverse(res.begin(), res.end());
+    reverse(res.begin(), res.end());
     return res;
 }
 
@@ -91,7 +92,7 @@ vector<vector<unsigned short>> get_reduced_dnf(const vector<vector<unsigned shor
 
         temp = {};
         for (const auto &x: n_temp) {
-            if (std::find(temp.begin(), temp.end(), x) == temp.end()) {
+            if (find(temp.begin(), temp.end(), x) == temp.end()) {
                 temp.push_back(x);
             }
         }
