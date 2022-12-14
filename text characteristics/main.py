@@ -46,15 +46,15 @@ def get_uniform_code(counted_letters):
 
 
 def general_characteristics(counted_letters, letters_amount):
-    print(f"Мощность алфавита {len(counted_letters)} символов")
-    print(f"Размер текста {letters_amount} символов")
-    print(f"Размер текста в битах {letters_amount * 8} бит")
-    print(f"Энтропия по Хартли {log2(len(counted_letters))}")
-    print(f"Количество информации по Хартли {letters_amount * log2(len(counted_letters))} бит")
+    print(f"Мощность алфавита\t{len(counted_letters)} символов")
+    print(f"Размер текста\t{letters_amount} символов")
+    print(f"Размер текста в битах\t{letters_amount * 8} бит")
+    print(f"Энтропия по Хартли\t{log2(len(counted_letters))}")
+    print(f"Количество информации по Хартли\t{letters_amount * log2(len(counted_letters))} бит")
     H_Shennon = get_Shennon(counted_letters)
-    print(f"Энтропия по Шеннону {H_Shennon}")
-    print(f"Количество информации по Шеннону {letters_amount * H_Shennon} бит")
-    print(f"Минимальная длина кода K {H_Shennon}")  # ???
+    print(f"Энтропия по Шеннону\t{H_Shennon}")
+    print(f"Количество информации по Шеннону\t{letters_amount * H_Shennon} бит")
+    print(f"Минимальная длина кода K\t{H_Shennon}")  # ???
 
 
 def get_Shennon(counted_letters):
@@ -126,14 +126,15 @@ def __main__():
     counted_letters, letters_amount = count_letters(letters)
     calculate_probability(counted_letters, letters_amount)  # грязная функция
     print_table(counted_letters)
+    general_characteristics(counted_letters, letters_amount)
     uniform_code = get_uniform_code(counted_letters)
     for elem in uniform_code:
-        print(" ".join([str(x) for x in elem]))
+        print("\t".join([str(x) for x in elem]))
     uniform_code_characteristics(uniform_code, letters_amount, counted_letters)
     haffman_code = get_haffman_code(counted_letters)
     haffman_code.sort(key=lambda x: len(x[1]))
     for elem in haffman_code:
-        print(" ".join([str(x) for x in elem]))
+        print("\t".join([str(x) for x in elem]))
     haffman_code_characteristics(haffman_code, letters_amount, counted_letters)
 
 
