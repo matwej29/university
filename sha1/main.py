@@ -1,6 +1,13 @@
 from functools import reduce
 
 
+def cycle_shift(n, shift):
+    n = bin(n)[2:].zfill(32)
+    shift = shift % len(n)
+    n = n[shift:] + n[:shift]
+    return int(n, 2)
+
+
 def genW(x):
     # Замыкание - выдает раундовые сообщения W[j].
     # На вход получает х - 512-битное число.
@@ -9,7 +16,7 @@ def genW(x):
 
     # Заранее вычисляем все 80 значений
     for i in range(16, 80):
-        W[i] = (W[i - 16] ^ W[i - 14] ^ W[i - 8] ^ W[i - 3]) << 1
+        W[i] = cycle_shift(W[i - 16] ^ W[i - 14] ^ W[i - 8] ^ W[i - 3], 1)
 
     # Создаем замыкание и возвращаем его
     def make_generator(j):
@@ -19,7 +26,7 @@ def genW(x):
 
 
 def padding(message):
-    x_str = ''.join([bin(ord(x))[2:] for x in message])
+    x_str = ''.join([bin(ord(x))[2:].zfill(8) for x in message])
     l = len(x_str)
 
     x_str += '1'
@@ -58,19 +65,19 @@ def sha1(message):
         W = genW(x)
         # проходим все 80 раундов и перевычисляем A, В, С, D, Е
         for i in range(80):
-            temp = (e + f[i // 20](b, c, d) + (a << 5) + W(i) + K[i // 20]) % 2 ** 32
+            temp = (e + f[i // 20](b, c, d) + cycle_shift(a, 5) + W(i) + K[i // 20]) % 2 ** 32
             e = d
             d = c
-            c = b << 30
+            c = cycle_shift(b, 30)
             b = a
             a = temp
 
     # суммируем результирующие значения A, В, С, D, Е с исходными
-    H[0] += a
-    H[1] += b
-    H[2] += c
-    H[3] += d
-    H[4] += e
+    H[0] = (H[0] + a) % 2 ** 32
+    H[1] = (H[1] + b) % 2 ** 32
+    H[2] = (H[2] + c) % 2 ** 32
+    H[3] = (H[3] + d) % 2 ** 32
+    H[4] = (H[4] + e) % 2 ** 32
 
     # выводим результат в шестнадцатеричном представлении
     return makeHashStr(H)
@@ -83,4 +90,4 @@ def makeHashStr(H):
     return res if len(res) == 40 else '0' * (40 - len(res)) + res
 
 
-print(sha1("1"))
+print(sha1("Hello, world!"))
