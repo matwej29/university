@@ -1,3 +1,6 @@
+import string
+
+
 class Key:
     def __init__(self, value=None):
         self.value = None
@@ -11,7 +14,7 @@ class Key:
 
 
 class KeyPlayfair(Key):
-    LOWER_LETTERS = 'abcdefghiklmnopqrstuvwxyz'  # j = i
+    SYMBOLS = string.printable  # len - 100
 
     def set(self, value):
         n_value = ""
@@ -21,9 +24,9 @@ class KeyPlayfair(Key):
         value = list(n_value)
 
         value_len = len(value)
-        letters = list("".join([x if x not in value else "" for x in self.LOWER_LETTERS[::-1]]))
+        letters = list("".join([x if x not in value else "" for x in self.SYMBOLS[::-1]]))
 
-        key = [[[] for _ in range(5)] for _ in range(5)]
+        key = [[[] for _ in range(10)] for _ in range(10)]
 
         for i in range(len(value)):
             key[i // len(key)][i % len(key[0])] = value.pop()
@@ -33,9 +36,6 @@ class KeyPlayfair(Key):
 
         super().set(key)
 
-
-# k = KeyPlayfair("helo")
-# print(k)
 
 class CryptoSystem:
     def __init__(self, key=None):
@@ -59,25 +59,43 @@ class CryptoSystemPlayfair(CryptoSystem):
 
     # step 1
     def prepare_message(self, message):
+        message = message.lower()
         n_message = ""
-        for i in range(0, len(message) - 1):
-            n_message += message[i].lower()
+        i = 0
+        while i < len(message) - 1:
             if message[i] == message[i + 1]:
-                n_message += "x"
-        n_message += message[-1].lower()
+                n_message += message[i] + 'x'
+                i += 1
+            else:
+                n_message += message[i] + message[i + 1]
+                i += 2
+        if len(message) % 2 == 1:
+            n_message += message[-1]
         if len(n_message) % 2 == 1:
             n_message += "x"
 
         return n_message
 
+    def rectangle_swap(self, ai, aj, bi, bj):
+        key = self.key.value
+        if (ai, aj) == (max(ai, bi), max(aj, bj)) or (bi, bj) == (max(ai, bi), max(aj, bj)):
+            result = key[bi][aj] + \
+                     key[ai][bj]
+            # result = key[ai][bj] + \
+            #          key[bi][aj]
+        # elif (bi, bj) == (max(ai, bi), max(aj, bj)):
+        #     result = key[bi][aj] + \
+        #              key[ai][bj]
+        else:
+            result = key[bi][aj] + \
+                     key[ai][bj]
+        return result
+
     def encrypt(self, message):
         message = message.replace(" ", '')
         message = self.prepare_message(message)
-        print(message)
         e_message = ''
-        print(len(message))
         for i in range(0, len(message) - 1, 2):
-            # print(i)
             a, b = message[i:i + 2]
             ai, aj = self.find_index_in_key(a)
             bi, bj = self.find_index_in_key(b)
@@ -93,14 +111,29 @@ class CryptoSystemPlayfair(CryptoSystem):
                              key[(bi + 1) % len(key)][aj]
             # step 4
             else:
-                print((ai, bi), (aj, bj), (max(ai, bi), max(aj, bj)))
-                if (ai, aj) == (max(ai, bi), max(aj, bj)) or (bi, bj) == (max(ai, bi), max(aj, bj)):
-                    e_message += key[min(ai, bi)][max(aj, bj)] + \
-                                 key[max(ai, bi)][min(aj, bj)]
-                else:
-                    e_message += key[min(ai, bi)][min(aj, bj)] + \
-                                 key[max(ai, bi)][max(aj, bj)]
+                e_message += self.rectangle_swap(ai, aj, bi, bj)
         return e_message
+
+    def decrypt(self, message):
+        d_message = ''
+        for i in range(0, len(message) - 1, 2):
+            a, b = message[i:i + 2]
+            ai, aj = self.find_index_in_key(a)
+            bi, bj = self.find_index_in_key(b)
+
+            # step 2
+            key = self.key.value
+            if ai == bi:
+                d_message += key[ai][(aj - 1) % len(key[0])] + \
+                             key[ai][(bj - 1) % len(key[0])]
+            # step 3
+            elif aj == bj:
+                d_message += key[(ai - 1) % len(key)][aj] + \
+                             key[(bi - 1) % len(key)][aj]
+            # step 4
+            else:
+                d_message += self.rectangle_swap(ai, aj, bi, bj)
+        return d_message
 
 
 class CryptoManager:
@@ -111,20 +144,35 @@ class CryptoManager:
         self.crypto = crypto
 
     def encrypt_file(self, input_filename, output_filename):
-        ...
+        file_input = open(input_filename, 'r')
 
-    def decrpyt_file(self, input_filename, output_filename):
-        ...
+        input_lines = file_input.readlines()
+        file_input.close()
 
-    def encrypt_string(self, string):
-        ...
+        with open(output_filename, 'w') as f:
+            for line in input_lines:
+                f.write(self.crypto.encrypt(line))
 
-    def decrypt_string(self, string):
-        ...
+    def decrypt_file(self, input_filename, output_filename):
+        file_input = open(input_filename, 'r')
+
+        input_lines = file_input.readlines()
+        file_input.close()
+
+        with open(output_filename, 'w') as f:
+            for line in input_lines:
+                f.write(self.crypto.decrypt(line))
+
+    def encrypt_string(self, s):
+        return self.crypto.encrypt(s)
+
+    def decrypt_string(self, s):
+        return self.crypto.decrypt(s)
 
 
 k = KeyPlayfair('WHEATSON')
-print(*k.value, sep="\n")
-c = CryptoSystemPlayfair(k)
+cs = CryptoSystemPlayfair(k)
+C = CryptoManager(cs)
 
-print(c.encrypt('IDIOCY OFTEN LOOKS LIKE INTELLIGENCE'))
+C.encrypt_file("input.txt", "e_input.txt")
+C.decrypt_file("e_input.txt", "d_input.txt")
