@@ -14,25 +14,27 @@ class Key:
 
 
 class KeyPlayfair(Key):
-    SYMBOLS = string.printable  # len - 100
+    SYMBOLS = string.printable + 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя' + 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
+    n = 83  # размерность ключа, исходя из словаря
+    m = 2  # находится факторизацией
 
     def set(self, value):
         n_value = ""
-        for x in value.lower()[::-1]:
+        for x in value:
             if x not in n_value:
                 n_value += x
         value = list(n_value)
 
-        value_len = len(value)
-        letters = list("".join([x if x not in value else "" for x in self.SYMBOLS[::-1]]))
+        letters = list("".join([x if x not in value else "" for x in self.SYMBOLS]))
 
-        key = [[[] for _ in range(10)] for _ in range(10)]
+        key = [[[] for _ in range(self.m)] for _ in range(self.n)]
 
-        for i in range(len(value)):
-            key[i // len(key)][i % len(key[0])] = value.pop()
-
-        for j in range(value_len, len(key[0]) * len(key)):
-            key[j // len(key)][j % len(key[0])] = letters.pop()
+        for i in range(self.n):
+            for j in range(self.m):
+                if len(value) != 0:
+                    key[i][j] = value.pop()
+                else:
+                    key[i][j] = letters.pop()
 
         super().set(key)
 
@@ -59,7 +61,6 @@ class CryptoSystemPlayfair(CryptoSystem):
 
     # step 1
     def prepare_message(self, message):
-        message = message.lower()
         n_message = ""
         i = 0
         while i < len(message) - 1:
@@ -69,11 +70,10 @@ class CryptoSystemPlayfair(CryptoSystem):
             else:
                 n_message += message[i] + message[i + 1]
                 i += 2
-        if len(message) % 2 == 1:
+        if i == len(message) - 1:
             n_message += message[-1]
         if len(n_message) % 2 == 1:
             n_message += "x"
-
         return n_message
 
     def rectangle_swap(self, ai, aj, bi, bj):
@@ -81,18 +81,12 @@ class CryptoSystemPlayfair(CryptoSystem):
         if (ai, aj) == (max(ai, bi), max(aj, bj)) or (bi, bj) == (max(ai, bi), max(aj, bj)):
             result = key[bi][aj] + \
                      key[ai][bj]
-            # result = key[ai][bj] + \
-            #          key[bi][aj]
-        # elif (bi, bj) == (max(ai, bi), max(aj, bj)):
-        #     result = key[bi][aj] + \
-        #              key[ai][bj]
         else:
             result = key[bi][aj] + \
                      key[ai][bj]
         return result
 
     def encrypt(self, message):
-        message = message.replace(" ", '')
         message = self.prepare_message(message)
         e_message = ''
         for i in range(0, len(message) - 1, 2):
@@ -171,6 +165,7 @@ class CryptoManager:
 
 
 k = KeyPlayfair('WHEATSON')
+print(*k.value, sep="\n")
 cs = CryptoSystemPlayfair(k)
 C = CryptoManager(cs)
 

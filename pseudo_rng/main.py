@@ -25,10 +25,10 @@ def evaluate(my_prng, tries):
         F[my_prng()] += 1
 
     # Вычисляем плотность с помощью map и lambda
-    density = list(map(lambda x: x / tries, F))
+    density = list(map(lambda x: x / tries * 100, F))
 
     # Вычисляем среднеквадратическую ошибку с помощью reduce и lambda
-    S = math.sqrt(reduce(lambda acc, val: (1 / 10 - val) ** 2, density, 0) / 10)
+    S = math.sqrt(reduce(lambda acc, val: acc + (1 / 10 - val / 100) ** 2, density, 0) / 10)
     print("Результат:", F)
     print("Плотность:", density)
     print("Среднеквадратическая ошибка: ", S)
