@@ -1,3 +1,5 @@
+from functools import reduce
+
 from ferma import find_prime_factorisation
 
 
@@ -60,7 +62,7 @@ class RSAHack:
         print(unpackString(encoded_message))
 
 
-rsa = RSAHack(123, 253, [1])
+# e, n
+rsa = RSAHack(35, 95, [74])
 
 rsa.encode()
-
