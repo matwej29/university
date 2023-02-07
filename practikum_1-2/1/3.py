@@ -1,3 +1,9 @@
+from time import time
+
+
+time_start = time()
+
+
 def my_count(text, pattern):
     count = 0
     for i in range(len(text) - len(pattern) + 1):
@@ -12,7 +18,7 @@ def frequent_words(text, k):
 
     for i in range(len(text) - k + 1):
         word = text[i:i+k]
-        frequency = my_count(text, word)
+        frequency = my_count(text[i:], word)
 
         if frequency not in word_frequencies:
             word_frequencies[frequency] = {word}
@@ -24,4 +30,8 @@ def frequent_words(text, k):
 
 
 # print(*frequent_words(input(), int(input())))
-print(*frequent_words('ACGTTGCATGTCGCATGATGCATGAGAGCT', 4))
+# print(*frequent_words('ACGTTGCATGTCGCATGATGCATGAGAGCT', 4))
+words = frequent_words('ACGTTGCATGTCGCATGATGCATGAGAGCT' * 4_00, 4)
+print(time() - time_start, ' s')
+
+print(*words)
