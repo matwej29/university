@@ -5,9 +5,9 @@ time_start = time()
 
 
 def count(text, k):
-    words = [text[:k]]
-    
-    for i in range(k, len(text) - k + 1):
+    words = []
+
+    for i in range(len(text) - k + 1):
         word = text[i:i + k]
         words.append(word)
 
@@ -32,7 +32,7 @@ def count(text, k):
 
 # print(*count(input(), int(input())))
 # print(*count('ACGTTGCATGTCGCATGATGCATGAGAGCT', 4))
-words = count('ACGTTGCATGTCGCATGATGCATGAGAGCT' * 4_00, 4)
+words = count('ACGTTGCATGTCGCATGATGCATGAGAGCT' * 1_000_000, 4)
 print(time() - time_start, ' s')
 
-print(*words)
+# print(*words)
