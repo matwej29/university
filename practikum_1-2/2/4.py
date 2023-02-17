@@ -22,7 +22,7 @@ def number_to_pattern(num, k):
     return number_to_pattern(q, k-1) + symbol(r)
 
 
-def find_frequent_words(genome, k):
+def compute_frequencies_and_maxim(genome, k):
     frequencies = [0] * 4 ** k
     maximum = 0
 
@@ -32,11 +32,16 @@ def find_frequent_words(genome, k):
         frequencies[n] += 1
         maximum = max(maximum, frequencies[n])
 
+    return frequencies, maximum
+
+
+def find_frequent_words(genome, k):
+    frequencies, maximum = compute_frequencies_and_maxim(genome, k)
+
     result = []
 
     for i in range(len(frequencies)):
-        frequency = frequencies[i]
-        if frequency == maximum:
+        if frequencies[i] == maximum:
             result.append(number_to_pattern(i, k))
     return result
 

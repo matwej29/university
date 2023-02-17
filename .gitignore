@@ -1,0 +1,12 @@
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/
+Makefile
+install_manifest.txt
+CTestTestfile.cmake
+# build folders
+build/
+# CLion
+.idea
