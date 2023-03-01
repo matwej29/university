@@ -1,10 +1,6 @@
 from collections import deque
 import numpy as np
 
-from time import time
-
-time_start = time()
-
 def possible_cells(current_pos, m, n):
     shift_list = ((0, 1), (0, -1), (1, 0), (-1, 0))
 
@@ -15,7 +11,7 @@ def possible_cells(current_pos, m, n):
 
 
 def bfs(m, n, infected_cells):
-    next_queue = deque(infected_cells)
+    next_queue = infected_cells
     steps = 0
     infected_amount = len(infected_cells)
 
@@ -28,11 +24,9 @@ def bfs(m, n, infected_cells):
         if infected_amount == m * n:
             break
         current_queue = next_queue
-        next_queue = deque([])
+        next_queue = []
 
-        while len(current_queue) > 0:
-            cell = current_queue.popleft()
-
+        for cell in current_queue:
             for neigbor in possible_cells(cell, m, n):
                 if infection_board[neigbor] == True:
                     continue
@@ -46,18 +40,15 @@ def bfs(m, n, infected_cells):
     return steps
 
 
-# m, n = [int(x) for x in input().split()]
-m, n = 1000, 1000
+m, n = [int(x) for x in input().split()]
 
-# k = int(input())
+k = int(input())
 
-# infected_cells = [None] * k
+infected_cells = [None] * k
 
-# for i in range(k):
-#     infected_cells[i] = tuple([int(x) - 1 for x in input().split()])
+for i in range(k):
+    infected_cells[i] = tuple([int(x) - 1 for x in input().split()])
 
-infected_cells = [(199, 299)]
 
 print(bfs(m, n, infected_cells))
 
-print(time() - time_start)

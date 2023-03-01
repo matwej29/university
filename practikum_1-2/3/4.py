@@ -1,8 +1,6 @@
 from functools import reduce
 from time import time
 
-time_start = time()
-
 
 def reverse_complement(s):
     d = {'A': 'T', 'G': 'C', 'T': 'A', 'C': 'G'}
@@ -60,7 +58,8 @@ def approximate_frequent_words(text, k, d):
             yield number_to_pattern(i, k)
 
 
+time_start = time()
 # print(*approximate_frequent_words(input(), *[int(x) for x in input().split()]))
-print(*approximate_frequent_words('ACGTTGCATGTCGCATGATGCATGAGAGCT', 8, 1))
+print(*approximate_frequent_words('ACGTTGCATGTCGCATGATGCATGAGAGCT' * 30, 4, 1))
 
 print(time() - time_start)

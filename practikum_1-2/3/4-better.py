@@ -1,4 +1,5 @@
 from functools import reduce
+from time import time
 
 
 def reverse_complement(s):
@@ -24,11 +25,26 @@ def number_to_pattern(num, k):
 
 
 def approximate_frequent_words(text, k, d):
-    substrings = [[number_to_pattern(i), 0] for i in range(4 ** k)]
+    substrings = [[number_to_pattern(i, k), 0] for i in range(4 ** k)]
 
     for i in range(len(text) - k):
-        fragment = text[i:i+k+1]
+        fragment = text[i:i+k]
+        inv_fragment = reverse_complement(fragment)
 
-        for j, substr in enumerate(substrings):
-            if hamming_distance(fragment, substr) < d:
+        for j in range(len(substrings)):
+            substr = substrings[j][0]
+            if hamming_distance(fragment, substr) <= d:
                 substrings[j][1] += 1
+            if hamming_distance(inv_fragment, substr) <= d:
+                substrings[j][1] += 1
+
+    max_val = max(substrings, key=lambda x: x[1])[1]
+
+    for i in range(4 ** k):
+        if substrings[i][1] == max_val:
+            yield substrings[i][0]
+
+
+time_start = time()
+print(*approximate_frequent_words('ACGTTGCATGTCGCATGATGCATGAGAGCT' * 30, 4, 1))
+print(time() - time_start)
