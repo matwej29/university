@@ -17,7 +17,7 @@ struct Fibonacci_heap {
         size_t vertex;
         bool extracted = false;
 
-        node(int x) : key(x){
+        node(int x) : key(x) {
             parent = this;
             child = this;
             left = this;
@@ -111,6 +111,7 @@ struct Fibonacci_heap {
         // если элемент один
         if (previous_min == previous_min->right) {
             min = nullptr;
+            size = 0;
             return previous_min;
         }
 
@@ -125,6 +126,7 @@ struct Fibonacci_heap {
      * где max_degree - максимальная степень вершины в корневом списке
      * */
     void consolidate() {
+        if (size <= 1) return;
         vector<node *> temp_nodes((int) std::log2(size) + 1, nullptr);
 
         temp_nodes[min->degree] = min;
@@ -216,35 +218,41 @@ void minimum_spanning_tree(const vector<vector<int>> adjencency_matrix, size_t n
     vector<size_t> parent(n);
 
     Fibonacci_heap queue;
-    vector<Fibonacci_heap::node> node_vertexes;
+    vector<Fibonacci_heap::node *> node_vertexes;
 
     for (size_t i = 0; i < n; i++) {
         key[i] = INFINITY;
         parent[i] = -1;
-        node_vertexes.emplace_back(0);
-        node_vertexes[i].vertex = i;
+        auto *new_node = new Fibonacci_heap::node(INFINITY);
+        node_vertexes.push_back(new_node);
+        node_vertexes[i]->vertex = i;
     }
 
     key[0] = 0;
-    node_vertexes[0].key = 0;
-    for(auto i = 0; i < n; i++)
-        queue.enqueue(&node_vertexes[i]);
+    parent[0] = 0;
+    node_vertexes[0]->key = 0;
+    for (auto v: node_vertexes)
+        queue.enqueue(v);
 
-    while(queue.size > 0){
+    while (queue.size > 0) {
         Fibonacci_heap::node *curr = queue.dequeue_min();
-        for (size_t u = 0; u < n; u++){
+        for (size_t u = 0; u < n; u++) {
             int weight = adjencency_matrix[curr->vertex][u];
-            if (!node_vertexes[u].extracted and key[u] > weight and weight != 0){
+            if (!node_vertexes[u]->extracted and key[u] > weight and weight != 0) {
                 parent[u] = curr->vertex;
                 key[u] = weight;
-                queue.decrease_key(&node_vertexes[u], key[u]);
+                queue.decrease_key(node_vertexes[u], key[u]);
             }
         }
     }
 
+    for (size_t i = 0; i < n; i++) {
+        delete node_vertexes[i];
+        cout << parent[i] << " - " << i << endl;
+    }
 }
 
-void heap_test(){
+void heap_test() {
     Fibonacci_heap fh;
 
     Fibonacci_heap::node test_node1(4);
