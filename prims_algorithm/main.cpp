@@ -7,23 +7,29 @@ using namespace std;
 struct Fibonacci_heap {
     struct node {
         int key;
-        node *parent = this; // указатель на родителя
-        node *child = this;  // указатель на сына
-        node *left = this;   // указатель на левый узел того же предка
-        node *right = this;  // указатель на правый узел того же предка
+        node *parent; // указатель на родителя
+        node *child;  // указатель на сына
+        node *left;   // указатель на левый узел того же предка
+        node *right;  // указатель на правый узел того же предка
         int degree = 0;   // степень вершины
         bool mark = false;    // был ли удален в процессе изменения ключа сын этой вершины
 
-        explicit node(int x) : key(x) {}
+        size_t vertex;
+        bool extracted = false;
+
+        node(int x) : key(x){
+            parent = this;
+            child = this;
+            left = this;
+            right = this;
+        }
     };
 
     int size;  // текущее число узлов
     node *min; // указатель на корень дерева с минимальным ключом
 
-    Fibonacci_heap() {
-        size = 0;
-        min = nullptr;
-    }
+    Fibonacci_heap() : size(0), min(nullptr) {}
+
 
     // вставка элемента в список корней правее минимального элемента
     void enqueue(node *new_node) {
@@ -57,7 +63,7 @@ struct Fibonacci_heap {
     }
 
     // cлияние двух куч
-    void merge(Fibonacci_heap *other) {
+    [[maybe_unused]] void merge(Fibonacci_heap *other) {
         if (other->size == 0) return;
         if (size == 0) {
             min = other->min;
@@ -84,6 +90,9 @@ struct Fibonacci_heap {
     }
 
     node *dequeue_min() {
+
+        min->extracted = true;
+
         node *previous_min = min;
 
         // список детей объединяем с корневым списком
@@ -175,7 +184,7 @@ struct Fibonacci_heap {
         x->right = x->left = x->parent = x;
         x->mark = false;
         // подвешиваем к корню
-        union_lists(min, x);
+        enqueue(x);
     }
 
     void cascading_cut(node *x) {
@@ -202,11 +211,40 @@ struct Fibonacci_heap {
 };
 
 // prim's algorithm
-void minimum_spanning_tree(vector<vector<u_int>> adjacency_list) {
+void minimum_spanning_tree(const vector<vector<int>> adjencency_matrix, size_t n) {
+    vector<int> key(n);
+    vector<size_t> parent(n);
+
+    Fibonacci_heap queue;
+    vector<Fibonacci_heap::node> node_vertexes;
+
+    for (size_t i = 0; i < n; i++) {
+        key[i] = INFINITY;
+        parent[i] = -1;
+        node_vertexes.emplace_back(0);
+        node_vertexes[i].vertex = i;
+    }
+
+    key[0] = 0;
+    node_vertexes[0].key = 0;
+    for(auto i = 0; i < n; i++)
+        queue.enqueue(&node_vertexes[i]);
+
+    while(queue.size > 0){
+        Fibonacci_heap::node *curr = queue.dequeue_min();
+        for (size_t u = 0; u < n; u++){
+            int weight = adjencency_matrix[curr->vertex][u];
+            if (!node_vertexes[u].extracted and key[u] > weight and weight != 0){
+                parent[u] = curr->vertex;
+                key[u] = weight;
+                queue.decrease_key(&node_vertexes[u], key[u]);
+            }
+        }
+    }
 
 }
 
-int main() {
+void heap_test(){
     Fibonacci_heap fh;
 
     Fibonacci_heap::node test_node1(4);
@@ -225,6 +263,35 @@ int main() {
     cout << fh.dequeue_min()->key << endl;
     cout << fh.dequeue_min()->key << endl;
     cout << fh.dequeue_min()->key << endl;
+}
 
+int main() {
+    // Для нахождения минимального остовного дерева подается кол-во вершин, а затем матрица смежностей с весами
+    // если вес = 0, то нет ребра в эту вершину
+    size_t n;
+    cin >> n;
+    vector<vector<int>> adjencency_matrix(n, vector(n, 0));
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j < n; ++j) {
+            cin >> adjencency_matrix[i][j];
+        }
+    }
+    minimum_spanning_tree(adjencency_matrix, n);
+//    heap_test();
     return 0;
 }
+
+/*
+5
+0 1 0 0 2
+1 0 4 0 0
+0 4 0 7 8
+0 0 7 0 1
+2 0 8 1 0
+ */
+
+/*
+2
+0 1
+1 0
+ */
