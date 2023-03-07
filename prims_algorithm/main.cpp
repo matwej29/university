@@ -90,7 +90,6 @@ struct Fibonacci_heap {
     }
 
     node *dequeue_min() {
-
         min->extracted = true;
 
         node *previous_min = min;
@@ -186,6 +185,7 @@ struct Fibonacci_heap {
         x->right = x->left = x->parent = x;
         x->mark = false;
         // подвешиваем к корню
+        size--;
         enqueue(x);
     }
 
@@ -199,9 +199,9 @@ struct Fibonacci_heap {
 
     void decrease_key(node *x, int new_key) {
         if (new_key > x->key) return;
+        x->key = new_key;
         // если структура дерева сохраняется
         if (x == x->parent or new_key >= x->parent->key) {
-            x->key = new_key;
             if (new_key < min->key)
                 min = x;
             return;
@@ -214,21 +214,18 @@ struct Fibonacci_heap {
 
 // prim's algorithm
 void minimum_spanning_tree(const vector<vector<int>> adjencency_matrix, size_t n) {
-    vector<int> key(n);
     vector<size_t> parent(n);
 
     Fibonacci_heap queue;
     vector<Fibonacci_heap::node *> node_vertexes;
 
     for (size_t i = 0; i < n; i++) {
-        key[i] = INFINITY;
         parent[i] = -1;
-        auto *new_node = new Fibonacci_heap::node(INFINITY);
+        auto *new_node = new Fibonacci_heap::node(INT16_MAX);
         node_vertexes.push_back(new_node);
         node_vertexes[i]->vertex = i;
     }
 
-    key[0] = 0;
     parent[0] = 0;
     node_vertexes[0]->key = 0;
     for (auto v: node_vertexes)
@@ -238,17 +235,18 @@ void minimum_spanning_tree(const vector<vector<int>> adjencency_matrix, size_t n
         Fibonacci_heap::node *curr = queue.dequeue_min();
         for (size_t u = 0; u < n; u++) {
             int weight = adjencency_matrix[curr->vertex][u];
-            if (!node_vertexes[u]->extracted and key[u] > weight and weight != 0) {
+            if (!node_vertexes[u]->extracted and weight != 0 and weight < node_vertexes[u]->key) {
                 parent[u] = curr->vertex;
-                key[u] = weight;
-                queue.decrease_key(node_vertexes[u], key[u]);
+                queue.decrease_key(node_vertexes[u], weight);
             }
         }
     }
 
-    for (size_t i = 0; i < n; i++) {
+    delete node_vertexes[0];
+    for (size_t i = 1; i < n; i++) {
+        cout << "вершина " << i << " - родитель " << parent[i] << ", ";
+        cout << "вес " << node_vertexes[i]->key << endl;
         delete node_vertexes[i];
-        cout << parent[i] << " - " << i << endl;
     }
 }
 
@@ -288,18 +286,3 @@ int main() {
 //    heap_test();
     return 0;
 }
-
-/*
-5
-0 1 0 0 2
-1 0 4 0 0
-0 4 0 7 8
-0 0 7 0 1
-2 0 8 1 0
- */
-
-/*
-2
-0 1
-1 0
- */
