@@ -106,8 +106,6 @@ struct Fibonacci_heap {
             min = nullptr;
             size = 0;
         } else {
-//            remove_from_circular_list(min);
-//            min = min_right;
             min = min->right;
             remove_from_circular_list(previous_min);
             size--;
@@ -178,7 +176,6 @@ struct Fibonacci_heap {
 
     // вырезаем ребенка какой-то вершины и подвешиваем его x к корневому
     void cut_node(node *x) {
-
         x->parent->degree--;
         // проверка на то, чтобы родитель x не потерял связь с остальными сыновьями
         if (x->parent->child == x) {
