@@ -100,12 +100,7 @@ struct Fibonacci_heap {
             union_lists(min, min->child);
         }
 
-        // вырезаем минимальный, меняя указатели соседних элементов
-        node *left = min->left;
-        node *right = min->right;
-
-        right->left = left;
-        left->right = right;
+        remove_from_circular_list(min);
 
         // если элемент один
         if (previous_min == previous_min->right) {
@@ -149,14 +144,16 @@ struct Fibonacci_heap {
                     to_adding = conflict_node;
                 }
 
+                remove_from_circular_list(to_adding);
                 // подвешиваем узел to_adding к add_to
                 if (add_to->child == add_to)
                     add_to->child = to_adding;
                 else
                     union_lists(add_to->child, to_adding);
+                to_adding->mark = false;
                 to_adding->parent = add_to;
+                temp_nodes[add_to->degree] = nullptr;
                 add_to->degree++;
-
                 current = add_to;
             }
 
@@ -165,16 +162,21 @@ struct Fibonacci_heap {
         }
     }
 
-    // подвешиваем узел x к корневому
-    void cut_node(node *x) {
+    void remove_from_circular_list(node *x) const {
         node *left = x->left;
         node *right = x->right;
+
         right->left = left;
         left->right = right;
+    }
+
+    // подвешиваем узел x к корневому
+    void cut_node(node *x) {
+        remove_from_circular_list(x);
 
         x->parent->degree--;
         // проверка на то, чтобы родитель x не потерял связь с остальными сыновьями
-        if (x->parent->child == x) {
+        if (x->parent != x and x->parent->child == x) {
             if (x->right == x) {
                 x->parent->child = x->parent;
             } else {
