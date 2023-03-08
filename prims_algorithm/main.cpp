@@ -7,19 +7,17 @@ using namespace std;
 struct Fibonacci_heap {
     struct node {
         int key;
-        node *parent; // указатель на родителя
-        node *child;  // указатель на сына
+        node *parent = nullptr; // указатель на родителя
+        node *child = nullptr;  // указатель на сына
         node *left;   // указатель на левый узел того же предка
         node *right;  // указатель на правый узел того же предка
-        int degree = 0;   // степень вершины
+        int degree = 0;   // степень вершины (кол-во детей)
         bool mark = false;    // был ли удален в процессе изменения ключа сын этой вершины
 
         size_t vertex;
         bool extracted = false;
 
         node(int x) : key(x) {
-            parent = this;
-            child = this;
             left = this;
             right = this;
         }
@@ -81,10 +79,10 @@ struct Fibonacci_heap {
 
     void unparent_node_list(node *start) {
         node *current = start->right;
-        start->parent = start;
+        start->parent = nullptr;
 
         while (current != start) {
-            current->parent = current;
+            current->parent = nullptr;
             current = current->right;
         }
     }
@@ -95,23 +93,26 @@ struct Fibonacci_heap {
         node *previous_min = min;
 
         // список детей объединяем с корневым списком
-        if (min->child != min) {
+        if (min->child != nullptr) {
             unparent_node_list(min->child);
             union_lists(min, min->child);
+            min->child = nullptr;
         }
 
-        remove_from_circular_list(min);
+        node *min_right = min->right;
 
-        // если элемент один
+        // если остался один элемент
         if (previous_min == previous_min->right) {
             min = nullptr;
             size = 0;
-            return previous_min;
+        } else {
+//            remove_from_circular_list(min);
+//            min = min_right;
+            min = min->right;
+            remove_from_circular_list(previous_min);
+            size--;
+            consolidate();
         }
-
-        min = min->right;
-        size--;
-        consolidate();
         return previous_min;
     }
 
@@ -127,7 +128,8 @@ struct Fibonacci_heap {
 
         node *current = min->right;
 
-        while (temp_nodes[current->degree] != nullptr) {
+        // пока есть конфликты
+        while (temp_nodes[current->degree] != current) {
             // наполняем вспомогательный список корневыми вершинами
             if (temp_nodes[current->degree] == nullptr) {
                 temp_nodes[current->degree] = current;
@@ -145,8 +147,8 @@ struct Fibonacci_heap {
                 }
 
                 remove_from_circular_list(to_adding);
-                // подвешиваем узел to_adding к add_to
-                if (add_to->child == add_to)
+                // подвешиваем узел to_adding к add_to с учетом наличия детей
+                if (add_to->child == nullptr)
                     add_to->child = to_adding;
                 else
                     union_lists(add_to->child, to_adding);
@@ -157,34 +159,38 @@ struct Fibonacci_heap {
                 current = add_to;
             }
 
-            if (current->key < min->key)
+            if (current->key <= min->key)
                 min = current;
         }
     }
 
+    // вырезаем вершину из циклического списка: меняем указатели соседних элементов
     void remove_from_circular_list(node *x) const {
         node *left = x->left;
         node *right = x->right;
 
         right->left = left;
         left->right = right;
+
+        // зацикливаем вершину на себе
+        x->right = x->left = x;
     }
 
-    // подвешиваем узел x к корневому
+    // вырезаем ребенка какой-то вершины и подвешиваем его x к корневому
     void cut_node(node *x) {
-        remove_from_circular_list(x);
 
         x->parent->degree--;
         // проверка на то, чтобы родитель x не потерял связь с остальными сыновьями
-        if (x->parent != x and x->parent->child == x) {
+        if (x->parent->child == x) {
             if (x->right == x) {
-                x->parent->child = x->parent;
+                x->parent->child = nullptr;
             } else {
                 x->parent->child = x->right;
             }
         }
+        remove_from_circular_list(x);
 
-        x->right = x->left = x->parent = x;
+        x->parent = nullptr;
         x->mark = false;
         // подвешиваем к корню
         size--;
@@ -192,7 +198,7 @@ struct Fibonacci_heap {
     }
 
     void cascading_cut(node *x) {
-        while (x->mark) {
+        while (x->mark and x->parent != nullptr) {
             cut_node(x);
             x = x->parent;
         }
@@ -200,17 +206,17 @@ struct Fibonacci_heap {
     }
 
     void decrease_key(node *x, int new_key) {
+        // нет проверки на то, что вершина в куче, остается доверять 🙃
         if (new_key > x->key) return;
         x->key = new_key;
-        // если структура дерева сохраняется
-        if (x == x->parent or new_key >= x->parent->key) {
-            if (new_key < min->key)
-                min = x;
-            return;
+        // если структура дерева не сохраняется
+        if (x->parent != nullptr and new_key < x->parent->key) {
+            node *parent = x->parent;
+            cut_node(x);
+            cascading_cut(parent);
         }
-        node *parent = x->parent;
-        cut_node(x);
-        cascading_cut(parent);
+        if (new_key < min->key)
+            min = x;
     }
 };
 
@@ -246,7 +252,7 @@ void minimum_spanning_tree(const vector<vector<int>> adjencency_matrix, size_t n
 
     delete node_vertexes[0];
     for (size_t i = 1; i < n; i++) {
-        cout << "вершина " << i << " - родитель " << parent[i] << ", ";
+        cout << "вершина " << i + 1 << " - родитель " << parent[i] + 1 << ", ";
         cout << "вес " << node_vertexes[i]->key << endl;
         delete node_vertexes[i];
     }
@@ -261,12 +267,12 @@ void heap_test() {
     fh.enqueue(&test_node1);
     fh.enqueue(&test_node2);
     fh.enqueue(&test_node3);
-    fh.decrease_key(&test_node3, 3);
     cout << fh.dequeue_min()->key << endl;
 
     Fibonacci_heap::node test_node4(5);
 
     fh.enqueue(&test_node4);
+    fh.decrease_key(&test_node4, 3);
 
     cout << fh.dequeue_min()->key << endl;
     cout << fh.dequeue_min()->key << endl;
