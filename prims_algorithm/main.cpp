@@ -60,23 +60,6 @@ struct Fibonacci_heap {
         first->left = second;
     }
 
-    // cлияние двух куч
-    [[maybe_unused]] void merge(Fibonacci_heap *other) {
-        if (other->size == 0) return;
-        if (size == 0) {
-            min = other->min;
-            size = other->size;
-            return;
-        }
-
-        union_lists(min, other->min);
-        if (other->min->key < min->key) {
-            min = other->min;
-        }
-
-        size += other->size;
-    }
-
     void unparent_node_list(node *start) {
         node *current = start->right;
         start->parent = nullptr;
@@ -99,8 +82,6 @@ struct Fibonacci_heap {
             min->child = nullptr;
         }
 
-        node *min_right = min->right;
-
         // если остался один элемент
         if (previous_min == previous_min->right) {
             min = nullptr;
@@ -115,8 +96,9 @@ struct Fibonacci_heap {
     }
 
     /* процедура прореживания деревьев:
-     * преобразование таким образом, чтобы в корневом списке было не более max_degree + 1,
-     * где max_degree - максимальная степень вершины в корневом списке
+     * преобразование таким образом, чтобы в корневом списке все вершины имели попарно различные степени
+     * (по возрастанию)
+     * и так, что после уплотнения максимальная степень вершины будет равна log2 n, где n - кол-во вершин в куче
      * */
     void consolidate() {
         if (size <= 1) return;
@@ -203,8 +185,9 @@ struct Fibonacci_heap {
     }
 
     void decrease_key(node *x, int new_key) {
-        // нет проверки на то, что вершина в куче, остается доверять 🙃
+        // нет проверки на то, что вершина в куче
         if (new_key > x->key) return;
+
         x->key = new_key;
         // если структура дерева не сохраняется
         if (x->parent != nullptr and new_key < x->parent->key) {
@@ -218,7 +201,7 @@ struct Fibonacci_heap {
 };
 
 // prim's algorithm
-void minimum_spanning_tree(const vector<vector<int>> adjencency_matrix, size_t n) {
+void minimum_spanning_tree(const vector<vector<int>> weightMatrix, size_t n) {
     vector<size_t> parent(n);
 
     Fibonacci_heap queue;
@@ -227,7 +210,7 @@ void minimum_spanning_tree(const vector<vector<int>> adjencency_matrix, size_t n
     for (size_t i = 0; i < n; i++) {
         parent[i] = -1;
         auto *new_node = new Fibonacci_heap::node(INT16_MAX);
-        node_vertexes.push_back(new_node);
+        node_vertexes.emplace_back(new_node);
         node_vertexes[i]->vertex = i;
     }
 
@@ -238,8 +221,9 @@ void minimum_spanning_tree(const vector<vector<int>> adjencency_matrix, size_t n
 
     while (queue.size > 0) {
         Fibonacci_heap::node *curr = queue.dequeue_min();
+        // находим ребро минимального веса для вершин, которые не содержатся в остовном дереве
         for (size_t u = 0; u < n; u++) {
-            int weight = adjencency_matrix[curr->vertex][u];
+            int weight = weightMatrix[curr->vertex][u];
             if (!node_vertexes[u]->extracted and weight != 0 and weight < node_vertexes[u]->key) {
                 parent[u] = curr->vertex;
                 queue.decrease_key(node_vertexes[u], weight);
@@ -255,39 +239,17 @@ void minimum_spanning_tree(const vector<vector<int>> adjencency_matrix, size_t n
     }
 }
 
-void heap_test() {
-    Fibonacci_heap fh;
-
-    Fibonacci_heap::node test_node1(4);
-    Fibonacci_heap::node test_node2(1);
-    Fibonacci_heap::node test_node3(4);
-    fh.enqueue(&test_node1);
-    fh.enqueue(&test_node2);
-    fh.enqueue(&test_node3);
-    cout << fh.dequeue_min()->key << endl;
-
-    Fibonacci_heap::node test_node4(5);
-
-    fh.enqueue(&test_node4);
-    fh.decrease_key(&test_node4, 3);
-
-    cout << fh.dequeue_min()->key << endl;
-    cout << fh.dequeue_min()->key << endl;
-    cout << fh.dequeue_min()->key << endl;
-}
-
 int main() {
     // Для нахождения минимального остовного дерева подается кол-во вершин, а затем матрица смежностей с весами
     // если вес = 0, то нет ребра в эту вершину
     size_t n;
     cin >> n;
-    vector<vector<int>> adjencency_matrix(n, vector(n, 0));
+    vector<vector<int>> weightMatrix(n, vector(n, 0));
     for (size_t i = 0; i < n; ++i) {
         for (size_t j = 0; j < n; ++j) {
-            cin >> adjencency_matrix[i][j];
+            cin >> weightMatrix[i][j];
         }
     }
-    minimum_spanning_tree(adjencency_matrix, n);
-//    heap_test();
+    minimum_spanning_tree(weightMatrix, n);
     return 0;
 }
