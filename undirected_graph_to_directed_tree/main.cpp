@@ -65,7 +65,10 @@ int main() {
         adj_list[v].emplace_back(u);
     }
 
-    undirected_graph_to_directed_tree(adj_list, start_vertex);
+    if (r != n - 1)
+        cout << "Граф не является неоринтированным деревом";
+    else
+        undirected_graph_to_directed_tree(adj_list, start_vertex);
 
     return 0;
 }
