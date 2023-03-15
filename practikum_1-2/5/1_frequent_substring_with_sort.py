@@ -36,14 +36,12 @@ def FrequentWordsWithSorting(text, k):
     Index.sort()
     SortedIndex = Index
 
-    Count = [1]
+    Count = [1] * len(Index)
     maxCount = 0
     # Цикл, который за один проход заполняет массив Count, используя SortedIndex
     for i in range(1, len(SortedIndex)):
         if SortedIndex[i] == SortedIndex[i - 1]:
-            Count.append(Count[i - 1] + 1)
-        else:
-            Count.append(1)
+            Count[i] = Count[i - 1] + 1
 
         maxCount = max(maxCount, Count[i])
 
