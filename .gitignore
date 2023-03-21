@@ -12,3 +12,4 @@ build/
 # CLion
 .idea
 .vscode
+__pycache__

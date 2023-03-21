@@ -31,6 +31,31 @@ def partition(A, left, right):
     return j
 
 
+def verbose_print(A, left, p, right):
+    for i, item in enumerate(A):
+        if i == left == p:
+            print(f'[] {item}', end=' ')
+            continue
+        elif i == p == right:
+            print(f'{item} []', end='')
+
+            if i != len(A) - 1:
+                print(end=' ')
+            continue
+
+        if i <= right and i in (left, p + 1):
+            print("[", end='')
+
+        print(item, end='')
+
+        if left <= i and i in (p - 1, right):
+            print(']', end='')
+
+        if i != len(A) - 1:
+            print(end=' ')
+    print()
+
+
 def quickSort(A, left=0, right=None, verbose=False):
     # если параметр right == None, то это первый вызов и надо исправить его на реальное значение
     if right == None:
@@ -45,22 +70,24 @@ def quickSort(A, left=0, right=None, verbose=False):
 
     # печатаем массив
     if verbose:
+        verbose_print(A, left, p, right)
+    else:
         print(*A)
 
     # рекурсивно сортируем обе части
     quickSort(A, left, p - 1, verbose)
+    quickSort(A, p + 1, right, verbose)
 
 
 if __name__ == '__main__':
     # читаем список A (и возможно слово 'verbose' на второй строке)
     A = list(map(int, input().split()))
-    # вызываем quickSort
-    quickSort(A, verbose=True)
+    try:
+        verbose = input()
+        if verbose == 'verbose':
+            verbose = True
+    except EOFError:
+        verbose = False
 
-    # Прочитать слово verbose "обычным" способом не получится, т.к. в 80% тестов второй строки нет и ваша программа сломается при попытке ее чтения. Прочитать то, чего может и не быть, можно с помощью обработки исключений. Изучите и используйте код, приведенный ниже:
-    # try:
-    #     verbose = input()
-    #     if verbose == 'verbose':
-    #         verbose = True
-    # except EOFError:
-    #     verbose = False
+    # вызываем quickSort
+    quickSort(A, verbose=verbose)
