@@ -1,8 +1,6 @@
 import unittest
 
-import sys
-sys.path.append('..')
-from t5_quick_sort import quickSort
+from practicum_kurs1_sem2.lesson_6.t5_quick_sort import quickSort
 
 class TestQuickSort(unittest.TestCase):
     def test_quick_sort(self):
