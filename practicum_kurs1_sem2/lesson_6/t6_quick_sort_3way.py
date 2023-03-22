@@ -1,4 +1,30 @@
-def quickSort3Way(A, left = 0, right = None, verbose = False):
+def verbose_print(A, left, lt, gt, right):
+    for i, item in enumerate(A):
+        if i == left == lt:
+            print(f'[] {item}', end=' ')
+            continue
+        elif i == gt == right:
+            print(f'{item} []', end='')
+
+            if i != len(A) - 1:
+                print(end=' ')
+            continue
+
+        if i <= right and i in (left, gt + 1):
+            print("[", end='')
+
+        print(item, end='')
+
+        if left <= i and i in (lt - 1, right):
+            print("]", end='')
+
+        if i != len(A) - 1:
+            print(end=' ')
+
+    print()
+
+
+def quickSort3Way(A, left=0, right=None, verbose=False):
     # если параметр right == None, то это первый вызов и надо исправить его на реальное значение
     if right == None:
         right = len(A) - 1
@@ -14,19 +40,19 @@ def quickSort3Way(A, left = 0, right = None, verbose = False):
 
     # производим трехпутевое разбиение за один проход в соответствии с алгоритмом
     while i <= gt:
-        if A[i] < A[left]:
+        if A[i] < A[lt]:
             A[i], A[lt] = A[lt], A[i]
             i += 1
             lt += 1
-        if A[i] == A[left]:
+        elif A[i] == A[lt]:
             i += 1
-        if A[i] > A[left]:
+        elif A[i] > A[lt]:
             A[i], A[gt] = A[gt], A[i]
             gt -= 1
 
     # печатаем массив в нужном формате
     if verbose:
-        ...
+        verbose_print(A, left, lt, gt, right)
     else:
         print(*A)
 
@@ -38,18 +64,11 @@ def quickSort3Way(A, left = 0, right = None, verbose = False):
 if __name__ == '__main__':
     # читаем список A (и возможно слово 'verbose' на второй строке)
     A = list(map(int, input().split()))
-    # вызываем quickSort3Way
-    quickSort3Way(A)
-
-    """
-    Прочитать слово verbose "обычным" способом не получится, т.к. в 80% тестов второй строки нет и ваша программа сломается при попытке ее чтения. Прочитать то, чего может и не быть, можно с помощью обработки исключений. Изучите и используйте код, приведенный ниже:
-
     try:
         verbose = input()
         if verbose == 'verbose':
             verbose = True
     except EOFError:
         verbose = False
-
-    """
-
+    # вызываем quickSort3Way
+    quickSort3Way(A, verbose=verbose)
