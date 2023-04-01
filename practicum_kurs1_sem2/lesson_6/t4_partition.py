@@ -30,11 +30,11 @@ def partition(A, left, right):
     A[left], A[j] = A[j], A[left]
     return j
 
-
-# читаем left, right, массив A
-left, right = map(int, input().split())
-A = list(map(int, input().split()))
-# вызываем partition и выводим результат
-j = partition(A, left, right)
-print(*A)
-print(j)
+if __name__ == '__main__':
+    # читаем left, right, массив A
+    left, right = map(int, input().split())
+    A = list(map(int, input().split()))
+    # вызываем partition и выводим результат
+    j = partition(A, left, right)
+    print(*A)
+    print(j)
