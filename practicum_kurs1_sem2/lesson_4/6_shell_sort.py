@@ -1,4 +1,4 @@
-
+# (1, 4, 10, 23, 57, 132, 301, 701, 1750)
 
 def shell_sort(steps, a):
     arr = a.copy()
