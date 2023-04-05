@@ -4,7 +4,7 @@ class MyStack:
         self._length = 10
         # arr - array 😕
         self.mas = [0] * self._length
-        self.top = -1
+        self.top: int = -1
 
     # метод добавления элемента в стек
     def push(self, x):

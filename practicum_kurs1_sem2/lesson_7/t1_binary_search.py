@@ -3,18 +3,17 @@ def binSearch(A, elem):
     if elem > A[-1] or elem < A[0] or len(A) == 0: return [None]
 
     # определим верхнюю границу и вызовем рекурсивную функцию
-    return binSearchRec(A, elem, lo=0, hi=len(A))
+    return binSearchRec(A, elem, lo=0, hi=len(A) - 1, trace=[])
 
 
-def binSearchRec(A, elem, lo, hi, trace=[]):
+def binSearchRec(A, elem, lo, hi, trace=None):
     # если подмассив пустой, то делать нечего
-    if lo == hi: return trace
+    if trace is None:
+        trace = []
+    if lo > hi: return trace
 
     # определяем средний элемент
-    if (hi - lo) % 2 == 0:
-        mid = (lo + hi) // 2 - 1
-    else:
-        mid = (lo + hi) // 2
+    mid = (lo + hi) // 2
 
     # выполняем сравнение и рекурсивный вызов на одной из половин
     if A[mid] == elem:
@@ -22,7 +21,7 @@ def binSearchRec(A, elem, lo, hi, trace=[]):
     elif elem > A[mid]:
         return binSearchRec(A, elem, mid + 1, hi, trace + [A[mid]])
     else:
-        return binSearchRec(A, elem, lo, mid, trace + [A[mid]])
+        return binSearchRec(A, elem, lo, mid - 1, trace + [A[mid]])
 
 
 if __name__ == "__main__":

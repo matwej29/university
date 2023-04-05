@@ -14,7 +14,7 @@ class TestExpandedDoublyLinkedList(unittest.TestCase):
         l = MyList()
         l.append(1)
         l.append(2)
-        elem = l[0]
+        elem = l.find(1)
         l.addAfter(elem, 3)
         self.assertEqual(str(l), '[1, 3, 2]')
 
@@ -22,7 +22,7 @@ class TestExpandedDoublyLinkedList(unittest.TestCase):
         l = MyList()
         l.append(1)
         l.append(2)
-        elem = l[0]
+        elem = l.find(1)
         l.addAfter(elem, 3)
         l[1] = 4
         self.assertEqual(str(l), '[1, 4, 2]')
@@ -32,7 +32,7 @@ class TestExpandedDoublyLinkedList(unittest.TestCase):
         l.append(1)
         l.append(2)
         self.assertEqual(l.find(2).data, 2)
-        elem = l[0]
+        elem = l.find(1)
         l.addAfter(elem, 3)
         self.assertEqual(l.find(3).data, 3)
         l[1] = 4
@@ -42,7 +42,7 @@ class TestExpandedDoublyLinkedList(unittest.TestCase):
         l = MyList()
         l.append(1)
         l.append(2)
-        elem = l[0]
+        elem = l.find(1)
         l.addAfter(elem, 3)
         l[1] = 4
 
@@ -65,7 +65,7 @@ class TestExpandedDoublyLinkedList(unittest.TestCase):
 
         added = l1 + l2
         for i in range(110):
-            self.assertEqual(added[i].data, l3[i].data)
+            self.assertEqual(added[i], l3[i])
 
     def test_concat(self):
         l1 = MyList()
@@ -83,7 +83,7 @@ class TestExpandedDoublyLinkedList(unittest.TestCase):
 
         l1.concat(l2)
         for i in range(110):
-            self.assertEqual(l1[i].data, l3[i].data)
+            self.assertEqual(l1[i], l3[i])
 
     def test_iter(self):
         l1 = MyList()
