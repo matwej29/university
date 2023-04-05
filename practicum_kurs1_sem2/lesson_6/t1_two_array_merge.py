@@ -4,6 +4,7 @@ def merge(A: list, left: int, mid: int, right: int):
 
     # список, в который мы будем записывать порядок сливания элементов
     indexes = []
+    # indices
 
     # Инициализируем указатели i и j
     i = left

@@ -21,14 +21,14 @@ def merge(A: list, left: int, mid: int, right: int):
             j += 1
 
     # Дописываем хвост (почитайте справку к функции extend для списков) и не забываем про indexes
-    AUX.extend(A[i:mid+1])
-    AUX.extend(A[j:right+1])
+    AUX.extend(A[i:mid + 1])
+    AUX.extend(A[j:right + 1])
 
-    indexes.extend(range(i, mid+1))
-    indexes.extend(range(j, right+1))
+    indexes.extend(range(i, mid + 1))
+    indexes.extend(range(j, right + 1))
 
     # Возвращаем назад в массив A результат нашей работы (обратите внимание на присваивание срезу!)
-    A[left:right+1] = AUX
+    A[left:right + 1] = AUX
 
     return indexes
 
@@ -45,9 +45,9 @@ def mergeSortNonRec(A):
         i = 0
         # запускаем цикл, который будет сливать половины подмассивов размером 2*width
         while i < n:
-            merge(A, i, min(i+width-1, n-1), min(i+2*width-1, n - 1))
+            merge(A, i, min(i + width - 1, n - 1), min(i + 2 * width - 1, n - 1))
             # не забываем увеличивать i на нужное значение
-            i += 2*width
+            i += 2 * width
         # не забываем увеличивать width на нужное значение
         width *= 2
 

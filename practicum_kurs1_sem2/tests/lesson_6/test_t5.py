@@ -6,7 +6,7 @@ import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__ + '/../../'))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from practicum_kurs1_sem2.lesson_6.t5_quick_sort import quickSort
+from lesson_6.t5_quick_sort import quickSort
 
 class TestQuickSort(unittest.TestCase):
     def test_quick_sort(self):

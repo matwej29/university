@@ -1,6 +1,3 @@
-from math import ceil, floor
-
-
 def merge(A: list, left: int, mid: int, right: int):
     # вспомогательный массив, в который будут сливаться элементы
     AUX = []
