@@ -131,7 +131,7 @@ class MyList:
             current_ind += 1
             current = current.next
 
-        return current.data
+        return current
 
     # реализуйте перегрузку индексации на запись
     def __setitem__(self, ind, new_data):
@@ -155,9 +155,9 @@ class MyList:
         new_list = MyList()
 
         for i in range(self.__len__()):
-            new_list.append(self[i])
+            new_list.append(self[i].data)
         for i in range(other.__len__()):
-            new_list.append(other[i])
+            new_list.append(other[i].data)
 
         return new_list
 
