@@ -56,21 +56,21 @@ class Graph:
 
     # генератор или итератор, перечисляющий все рёбра графа
     def edges(self):
-        if not self._isVSorted:
-            self._sort_V()
+        if not self._isESorted:
+            self._sort_E()
         for e in self.E:
             yield e
 
     # генератор или итератор, перечисляющий все вершины графа
     def vertices(self):
-        if not self._isESorted:
-            self._sort_E()
+        if not self._isVSorted:
+            self._sort_V()
         for v in self.V:
             yield v
 
     # генератор или итератор, перечисляющий все рёбра, выходящие из вершины v
     def outgoing(self, v):
-        for e in self.E:
+        for e in self.edges():
             if e[0] == v:
                 yield e
 
