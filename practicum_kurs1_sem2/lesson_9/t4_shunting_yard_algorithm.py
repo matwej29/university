@@ -1,6 +1,8 @@
 OPERATIONS = ['+', '-', '*', '/', '**']
 
 PRIORITY = {
+    '(': 999999999,
+    ')': 999999999,
     '+': 5,
     '-': 5,
     '*': 4,
@@ -16,11 +18,13 @@ ASSOCIATIVITY = {
     '-': LEFT,
     '*': LEFT,
     '/': LEFT,
-    '**': RIGHT
+    '**': RIGHT,
+    '(': LEFT,
+    ')': LEFT
 }
 
 
-def shunting_yard_algorithm(inf):
+def shunting_yard_algorithm(inf: list[str]):
     stack = []
     ops = []
 
@@ -61,7 +65,7 @@ def shunting_yard_algorithm(inf):
 
         ops.append(elem)
 
-    return ' '.join(ops)
+    return ops
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 # определим функцию, которая будет делать всю работу
-def calculate_ops(ops):
+def calculate_ops(ops: list[str]):
     add = lambda x, y: x + y
     substract = lambda x, y: x - y
     multiply = lambda x, y: x * y
