@@ -78,7 +78,7 @@ def tree_print(root: Node, markup: dict[Node, int]):
 
         for j in range(0, len(places) - 1, 2):
             if i == 0: break
-            output[i - 1][places[j]:places[j + 1]+1] = ['-'] * (places[j + 1] - places[j] + 1)
+            output[i - 1][places[j]:places[j + 1] + 1] = ('-',) * (places[j + 1] - places[j] + 1)
 
         current_line = next_line[:]
 
