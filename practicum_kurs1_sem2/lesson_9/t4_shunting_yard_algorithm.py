@@ -1,8 +1,8 @@
 OPERATIONS = ['+', '-', '*', '/', '**']
 
 PRIORITY = {
-    '(': 999999999,
-    ')': 999999999,
+    '(': 1,
+    ')': 1,
     '+': 5,
     '-': 5,
     '*': 4,
@@ -54,6 +54,7 @@ def shunting_yard_algorithm(inf: list[str]):
                 # более приоритетная
                 while PRIORITY[stack[-1]] < PRIORITY[lexeme] or (
                         PRIORITY[stack[-1]] == PRIORITY[lexeme] and ASSOCIATIVITY[stack[-1]] == LEFT):
+                    if stack[-1] == '(': break
                     ops.append(stack.pop())
                     if len(stack) == 0: break
                 stack.append(lexeme)
