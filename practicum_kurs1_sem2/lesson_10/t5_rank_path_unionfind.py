@@ -15,7 +15,15 @@ class UnionFind:
         current = x
         while current != self._id[current]:
             current = self._id[current]
-        return current
+        root = current
+
+        current = x
+        while current != self._id[current]:
+            temp = self._id[current]
+            self._id[current] = root
+            current = temp
+        return root
+
 
     # возвращает строку с элементами множества
     def __str__(self):
