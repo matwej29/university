@@ -17,10 +17,19 @@
 
     q9, 0 -> q9, 0', +1; // идем до девятки, штрихуя одинокие нули (т.к. нули не могут быть ведущими)
 
-    q9, E -> q9, E, +1;
+    q9, E -> q9E, E, +1;
+    q9E, E -> qnotfound, E, -1;
+    q9E, 1 -> q9, 1, 0;
+    q9E, 0 -> q9, 0, 0;
     q9n, 0 -> q9n, 0, +1;
     q9n, 1 -> q9n, 1, +1;
     q9n, E -> q9, E, +1;
+
+    qnotfound, 1 -> qnotfound, 1, -1;
+    qnotfound, 0 -> qnotfound, 0, -1;
+    qnotfound, 0' -> qnotfound, 0, -1;
+    qnotfound, E -> qnotfound, E, -1;
+    qnotfound, 1* -> qstop, 1, 0;
 
     qe, 1 -> qe, 1, +1; // идем до конца
     qe, 0 -> qe, 0, +1;
@@ -28,12 +37,62 @@
 
     qeE, 0 -> qe, 0, +1;
     qeE, 1 -> qe, 1, +1;
-    qeE, E -> qeE', E, -1; // штрихуем последний пробел
-    qeE', E -> qd, E', -1;
+    qeE, E -> qeE''', E, -1; // штрихуем последний пробел
+    qeE''', E -> qd, E''', -1;
 
     qd, 0 -> qd, 0, -1; // удаляем штрихованные нули: либо одиночные, либо ведущие(коих не должно быть)
     qd, 0' -> qd, E, -1;
     qd, 1 -> qd, 1, -1;
     qd, E -> qd, E, -1;
-    qd, 0* -> qs, E, -1;
+    qd, 0* -> qs, E*, 0;
+    qd, 1* -> qs, 1*, 0;
+
+    qs, 1* -> qs, 1*, +1; // сдвиги
+    qs, E* -> qs, E*, +1;
+    qs, E -> qs, E, +1;
+
+    qend, 0 -> qend, 0, -1;
+    qend, 1 -> qend, 1, -1;
+    qend, E -> qend, E, -1;
+    qend, E'' -> qend, E, -1;
+    qend, 1* -> qstop, 1, 0;
+
+    qs, 1 -> qword, 1, +1;
+    qs, 0 -> qword, 0, +1;
+
+    qword, 1 -> qword, 1, +1; // идем до конца слова и ставим штрих на пробеле
+    qword, 0 -> qword, 0, +1;
+    qword, E -> qcheckshift, E', -1;
+    qword, E''' -> qcheckshift, E''', -1;
+
+    qcheckshift, 0 -> qcheckshift, 0, -1; // идем до предыдущего слова и ставим E'' в нужном месте, на которое поставим символ
+    qcheckshift, 1 -> qcheckshift, 1, -1;
+    qcheckshift, E -> qcheckspace, E, -1;
+
+    qcheckspace, E -> qcheckspace, E, -1;
+    qcheckspace, 1 -> qcreatespace, 1, +1;
+    qcheckspace, 0 -> qcreatespace, 0, +1;
+    qcheckspace, 1* -> qcreatespace, 1*, +1;
+    qcheckspace, E* -> qmarkspace, E*, 0;
+    qcheckspace, E'' -> qmarkspace, E, +1;
+
+    qcreatespace, E -> qmarkspace, E, +1;
+
+    qmarkspace, E -> qshift, E'', +1;
+
+    qshift, E -> qshift, E, +1;
+    qshift, E' -> qs, E, +1;
+    qshift, E''' -> qend, E, -1;
+
+    qshift, 1 -> qshift1, E, -1;
+    qshifft1, 1 -> qshift1, 1, -1;
+    qshift1, 0 -> qshift1, 0, -1;
+    qshift1, E -> qshift1, E, -1;
+    qshift1, E'' -> qmarkspace, 1, +1;
+
+    qshift, 0 -> qshift0, E, -1;
+    qshifft0, 1 -> qshift0, 1, -1;
+    qshift0, 0 -> qshift0, 0, -1;
+    qshift0, E -> qshift0, E, -1;
+    qshift0, E'' -> qmarkspace, 0, +1;
 }
