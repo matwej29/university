@@ -25,7 +25,12 @@ class TaskTests(unittest.TestCase):
         self.assertEqual(start('1 0 0 1 0 0 111 10001'), '1 0 0 1 0 0 111 10001')
 
 
+    def test5(self):
+        self.assertEqual(start('000000001 00000000 0 001 0 0 00111 01001 0 011'), '000000001 001 00111 01001 0 011')
+
+
 if __name__ == '__main__':
-    import reformat_file
+    from reformat_file import reformat
+    reformat()
 
     unittest.main()
