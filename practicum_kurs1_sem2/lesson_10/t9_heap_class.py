@@ -3,7 +3,6 @@ class Heap:
     # конструктор, инициализирующий все необходимые поля необходимыми значениями
     def __init__(self, heap=None, tail=None):
         self.heap = heap if heap is not None else []
-        self.tail = tail if heap is not None else -1
 
     def left_son(self, p):
         # возвращаем индекс левого сына элемента p
@@ -21,9 +20,9 @@ class Heap:
     def min_son(self, p):
         # возвращаем индекс минимального сына элемента p или -1, если p - лист
         l_son_ind = self.left_son(p)
-        if l_son_ind > self.tail: return -1
+        if l_son_ind > len(self.heap) - 1: return -1
         r_son_ind = self.right_son(p)
-        if r_son_ind > self.tail: return l_son_ind
+        if r_son_ind > len(self.heap) - 1: return l_son_ind
         if self.heap[l_son_ind] < self.heap[r_son_ind]:
             return l_son_ind
         else:
@@ -51,22 +50,20 @@ class Heap:
 
     # метод для добавления элемента x в кучу
     def add(self, x):
-        self.tail += 1
         self.heap.append(x)
-        self.sift_up(self.tail)
+        self.sift_up(len(self.heap) - 1)
 
     # метод для возврата минимума
     def min(self):
-        if self.tail == -1: raise IndexError("Куча пуста!")
+        if len(self.heap) - 1 == -1: raise IndexError("Куча пуста!")
         return self.heap[0]
 
     # метод для возврата минимума и удаления его из кучи
     def get_min(self):
         result = self.min()
-        self.heap[0] = self.heap[self.tail]
-        self.tail -= 1
+        self.heap[0] = self.heap[len(self.heap) - 1]
         self.heap.pop()
-        if self.tail > 0:
+        if len(self.heap) - 1 > 0:
             self.sift_down(0)
         return result
 
