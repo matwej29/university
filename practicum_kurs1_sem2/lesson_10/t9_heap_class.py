@@ -2,22 +2,22 @@
 class Heap:
     # конструктор, инициализирующий все необходимые поля необходимыми значениями
     def __init__(self, heap=None, tail=None):
-        self.heap = heap if heap is not None else []
+        self.heap: list[int] = heap if heap is not None else []
 
-    def left_son(self, p):
+    def left_son(self, p: int) -> int:
         # возвращаем индекс левого сына элемента p
         return 2 * p + 1
 
-    def right_son(self, p):
+    def right_son(self, p: int) -> int:
         # возвращаем индекс правого сына элемента p
         return 2 * p + 2
 
-    def parent(self, p):
+    def parent(self, p: int) -> int:
         # возвращаем индекс родителя элемента p (не забудьте про сложности округления
         # и целочисленного деления в Питоне! протестируйте свой метод!)
         return max(0, (p - 1) // 2)
 
-    def min_son(self, p):
+    def min_son(self, p: int) -> int:
         # возвращаем индекс минимального сына элемента p или -1, если p - лист
         l_son_ind = self.left_son(p)
         if l_son_ind > len(self.heap) - 1: return -1
@@ -28,7 +28,7 @@ class Heap:
         else:
             return r_son_ind
 
-    def sift_up(self, p):
+    def sift_up(self, p: int):
         # если мы в корне, то выходим
         if p == 0: return
 
@@ -39,7 +39,7 @@ class Heap:
             p = prnt
             prnt = self.parent(p)
 
-    def sift_down(self, p):
+    def sift_down(self, p: int):
         minCh = self.min_son(p)
         # пока мы не в листе и текущий элемент больше минимального из сыновей,
         # меняем их местами и погружаемся ниже
@@ -49,17 +49,17 @@ class Heap:
             minCh = self.min_son(p)
 
     # метод для добавления элемента x в кучу
-    def add(self, x):
+    def add(self, x: int):
         self.heap.append(x)
         self.sift_up(len(self.heap) - 1)
 
     # метод для возврата минимума
-    def min(self):
+    def min(self) -> int:
         if len(self.heap) - 1 == -1: raise IndexError("Куча пуста!")
         return self.heap[0]
 
     # метод для возврата минимума и удаления его из кучи
-    def get_min(self):
+    def get_min(self) -> int:
         result = self.min()
         self.heap[0] = self.heap[len(self.heap) - 1]
         self.heap.pop()

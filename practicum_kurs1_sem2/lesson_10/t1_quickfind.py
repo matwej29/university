@@ -1,14 +1,14 @@
 class QuickFind:
     # конструктор, создающий пустой массив для хранения СНМ
     def __init__(self):
-        self._id = []
+        self._id: list[int] = []
 
     # добавляет в СНМ еще один элемент
     def make_set(self):
         self._id.append(len(self._id))
 
     # возвращает идентификатор множества, в котором лежит элемент x
-    def find_set(self, x):
+    def find_set(self, x: int) -> int:
         return self._id[x]
 
     # возвращает строку с элементами множества
@@ -16,16 +16,16 @@ class QuickFind:
         return ' '.join(str(x) for x in self._id)
 
     # объединяет два множества, представленные своими элементами x и y
-    def union_set(self, x, y):
-        idx = self._id[x]
-        idy = self._id[y]
+    def union_set(self, x: int, y: int):
+        idx: int = self._id[x]
+        idy: int = self._id[y]
 
         for i, item in enumerate(self._id):
             if item == idy:
                 self._id[i] = idx
 
     # возвращает True, если x и y связаны, и False в противном случае
-    def connected(self, x, y):
+    def connected(self, x: int, y: int) -> bool:
         return self._id[x] == self._id[y]
 
 

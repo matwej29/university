@@ -2,8 +2,8 @@
 class UnionFind:
     # конструктор, создающий пустой массив для хранения СНМ
     def __init__(self):
-        self._id = []
-        self._rank = []
+        self._id: list[int] = []
+        self._rank: list[int] = []
 
     # добавляет в СНМ еще один элемент
     def make_set(self):
@@ -11,7 +11,7 @@ class UnionFind:
         self._rank.append(0)
 
     # возвращает корень дерева, которому принадлежит x
-    def root(self, x):
+    def root(self, x: int) -> int:
         current = x
         while current != self._id[current]:
             current = self._id[current]
@@ -22,9 +22,9 @@ class UnionFind:
         return ' '.join(str(x) for x in self._id) + '\n' + ' '.join(str(x) for x in self._rank)
 
     # объединяет два множества, представленные своими элементами x и y
-    def union_set(self, x, y):
-        root_x = self.root(x)
-        root_y = self.root(y)
+    def union_set(self, x: int, y: int):
+        root_x: int = self.root(x)
+        root_y: int = self.root(y)
         if root_x == root_y: return
         if self._rank[root_y] > self._rank[root_x]:
             self._id[root_x] = root_y
@@ -34,7 +34,7 @@ class UnionFind:
                 self._rank[root_x] += 1
 
     # возвращает True, если x и y связаны, и False в противном случае
-    def connected(self, x, y):
+    def connected(self, x: int, y: int) -> bool:
         return self._id[self.root(x)] == self._id[self.root(y)]
 
 if __name__ == '__main__':

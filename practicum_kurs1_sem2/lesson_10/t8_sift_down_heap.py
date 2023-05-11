@@ -1,15 +1,14 @@
-
-
-
-def left_son(p):
+def left_son(p: int) -> int:
     # возвращаем индекс левого сына элемента p
     return 2 * p + 1
 
-def right_son(p):
+
+def right_son(p: int) -> int:
     # возвращаем индекс правого сына элемента p
     return 2 * p + 2
 
-def min_son(p):
+
+def min_son(p: int) -> int:
     # возвращаем индекс минимального сына элемента p или -1, если p - лист
     if p * 2 > tail: return -1
     l_son_ind = left_son(p)
@@ -19,7 +18,8 @@ def min_son(p):
     else:
         return r_son_ind
 
-def sift_down(heap, p):
+
+def sift_down(heap: list[int], p: int):
     minCh = min_son(p)
     # пока мы не в листе и текущий элемент больше минимального из сыновей,
     # меняем их местами и погружаемся ниже

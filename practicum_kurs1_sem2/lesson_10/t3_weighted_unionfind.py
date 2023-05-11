@@ -1,8 +1,8 @@
 class UnionFind:
     # конструктор, создающий пустой массив для хранения СНМ
     def __init__(self):
-        self._id = []
-        self._size = []
+        self._id: list[int] = []
+        self._size: list[int] = []
 
     # добавляет в СНМ еще один элемент
     def make_set(self):
@@ -10,7 +10,7 @@ class UnionFind:
         self._size.append(1)
 
     # возвращает корень дерева, которому принадлежит x
-    def root(self, x):
+    def root(self, x: int) -> int:
         current = x
         while current != self._id[current]:
             current = self._id[current]
@@ -21,9 +21,9 @@ class UnionFind:
         return ' '.join(str(x) for x in self._id) + '\n' + ' '.join(str(x) for x in self._size)
 
     # объединяет два множества, представленные своими элементами x и y
-    def union_set(self, x, y):
-        root_x = self.root(x)
-        root_y = self.root(y)
+    def union_set(self, x: int, y: int):
+        root_x: int = self.root(x)
+        root_y: int = self.root(y)
         if root_x == root_y: return
         if self._size[root_y] > self._size[root_x]:
             root_x, root_y = root_y, root_x
@@ -31,7 +31,7 @@ class UnionFind:
         self._size[root_x] += self._size[root_y]
 
     # возвращает True, если x и y связаны, и False в противном случае
-    def connected(self, x, y):
+    def connected(self, x: int, y: int) -> bool:
         return self._id[self.root(x)] == self._id[self.root(y)]
 
 
