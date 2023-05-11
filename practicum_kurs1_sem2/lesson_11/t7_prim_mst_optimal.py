@@ -89,7 +89,7 @@ class Heap:
         self.heap_index[v] = len(self.heap) - 1
         self.sift_up(len(self.heap) - 1)
 
-    # новый метод для нашей задачи, который кладет в очередь N вершин графа с идентификаторами от 0 до N-1
+    # новый метод для нашей задачи, который кладет в очередь N вершин графа с идентификаторами от 0 по N-1
     # и приоритетом "бесконечность" (в качестве "бесконечности" можно выбрать любое число большее N)
     def add_vertices(self, N):
         for i in range(N):
@@ -106,15 +106,16 @@ class Heap:
     def get_min(self):
         result = self.min()
         self.heap_index.pop(result)
-        self.heap[0].priority = self.heap[len(self.heap) - 1].priority
+        self.heap[0] = self.heap[len(self.heap) - 1]
+        self.heap_index[self.heap[0].v] = 0
         self.heap.pop()
         if len(self.heap) - 1 > 0:
             self.sift_down(0)
         return result
 
 
-def edges2adj(N: int, edges: tuple[int, int, int]) -> list[list[tuple]]:
-    adj_list: list[list[tuple]] = [[] for _ in range(N)]
+def edges2adj(N, edges):
+    adj_list = [[] for _ in range(N)]
 
     for edge in edges:
         u, v, weight = edge
@@ -171,7 +172,7 @@ def print_spanning_tree(G, pi):
 # считываем количество вершин
 N = int(input())
 
-edges: list[tuple[int, int, int]] = []
+edges = []
 # считываем ребра
 try:
     while True:
