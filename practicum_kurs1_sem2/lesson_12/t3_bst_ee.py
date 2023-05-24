@@ -163,11 +163,6 @@ class BST:
         # если y - это корень, то x теперь новый корень всего дерева! не забудем про поле root объекта
         if self.root == y:
             self.root = x
-
-            # if y.left and y.left != x:
-            #     x.left = y.left
-            # if y.right and y.right != x:
-            #     x.right = y.right
         # в противном случае подцепим к отцу y вершину x
         else:
             # если x не None, то переподцепим его к отцу y
@@ -181,7 +176,6 @@ class BST:
         # (см. случай 3, где node это z)
         if y != node:
             node.key = y.key
-            # self.remove(y)
 
     def get_array(self, root_=None, result=None):
         # определяем, что является текущим узлом, в зависимости от значения root_
