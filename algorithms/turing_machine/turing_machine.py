@@ -2,7 +2,7 @@ class Tape:
     shift = 5
 
     def __init__(self):
-        self.tape = ['E'] * 100
+        self.tape = ['^'] * 100
 
     def __getitem__(self, key):
         # Обработчики ошибок не добавлены для того, чтобы видеть все состояния машины Тьюринга при некорректном значении
@@ -67,12 +67,12 @@ class Turing:
             self.i += int(s)
             print(*self.tape, sep='')
 
-        print(''.join(list(map(lambda x: ' ' if x == "E" else x, self.tape.tape))).rstrip())
+        print(''.join(list(map(lambda x: ' ' if x == "^" else x, self.tape.tape))).rstrip())
         print(self.tape)
         print(self.i, self.tape[self.i])
         print(self.state)
         print(*self.trace[::-1])
-        return ''.join(list(map(lambda x: ' ' if x == "E" else x, self.tape.tape))).strip()
+        return ''.join(list(map(lambda x: ' ' if x == "^" else x, self.tape.tape))).strip()
 
 
 if __name__ == '__main__':
@@ -80,13 +80,13 @@ if __name__ == '__main__':
 
     reformat()
 
-    with open("res") as f:
+    with open("program.txt") as f:
         lines = f.readlines()
 
     mT = Turing()
     mT.set_program(lines)
-    raw_input = input("Введите что-нибудь, пожалуйста:\n")
-    # raw_input = '1001'
+    # raw_input = input("Введите что-нибудь, пожалуйста:\n")
+    raw_input = '1001'
     print(raw_input)
-    refactored_input = ''.join(list(map(lambda x: 'E' if x == " " else x, raw_input)))
+    refactored_input = ''.join(list(map(lambda x: '^' if x == " " else x, raw_input)))
     print(mT.start(refactored_input))

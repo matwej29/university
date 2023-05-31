@@ -1,121 +1,117 @@
-38
-{   
-    q0, 0 -> qstar, 0, -1; // отмечаем начало
-    q0, 1 -> qstar, 1, -1;
+q0, 0 -> qstar, 0, -1; // отмечаем начало
+q0, 1 -> qstar, 1, -1;
 
-    qstar, E -> q9, *, +1;
+qstar, ^ -> q9, *, +1; // запускаем процедуру поиска девятки
 
-    q9, 1 -> q92, 1, +1; // видим девятку
-    q92, 0 -> q93, 0, +1;
-    q93, 0 -> q94, 0, +1;
-    q94, 1 -> q9clear, 1, -1;
+q9, 0 -> q9, 0', +1; // идем до девяти, штрихуя одинокие нули (т.к. нули не могут быть ведущими)
 
-    q9clear, 0 -> q9clear, 0, -1; // удаляем штрихи у ведущих нулей у девятки
-    q9clear, 1 -> q9clear, 1, -1;
-    q9clear, 0' -> q9clear, 0, -1;
-    q9clear, E -> qe, E, +1;
-    q9clear, * -> qstop, E, +1;
+q9, 1 -> q92, 1, +1; // видим девять
+q92, 0 -> q93, 0, +1;
+q93, 0 -> q94, 0, +1;
+q94, 1 -> q9clear, 1, -1;
 
-    q92, 1 -> q9n, 1, 0; // не девятка - пропускаем
-    q93, 1 -> q9n, 1, 0;
-    q94, 0 -> q9n, 0, 0;
-    q92, E -> q9n, E, -1;
-    q93, E -> q9n, E, -1;
-    q94, E -> q9n, E, -1;
+q9clear, 0 -> q9clear, 0, -1; // удаляем штрихи у ведущих нулей у девяти
+q9clear, 1 -> q9clear, 1, -1;
+q9clear, 0' -> q9clear, 0, -1;
+q9clear, ^ -> qgoend, ^, +1;
+q9clear, * -> qstop, ^, +1;
 
-    q9, 0 -> q9, 0', +1; // идем до девятки, штрихуя одинокие нули (т.к. нули не могут быть ведущими)
+q92, 1 -> q9n, 1, 0; // не девять - нужно стереть штрихи у ведущих нулей
+q93, 1 -> q9n, 1, 0;
+q94, 0 -> q9n, 0, 0;
+q92, ^ -> q9n, ^, -1;
+q93, ^ -> q9n, ^, -1;
+q94, ^ -> q9n, ^, -1;
 
-    q9, E -> q9E, E, +1; // в поисках девятки доходим до конца
+q9, ^ -> q9end, ^, +1; // в поисках девяти доходим до конца
 
-    q9E, E -> qnotfound, E, -1; // не нашли девятку
-    q9E, 1 -> q9, 1, 0;
-    q9E, 0 -> q9, 0, 0;
-    q9n, 0 -> q9n, 0, -1; // нужно удалить штрихи у ведущих нулей
-    q9n, 1 -> q9n, 1, -1;
-    q9n, 0' -> q9n, 0, -1;
-    q9n, E -> qskip, E, +1;
-    q9n, * -> qskip, *, +1;
+q9end, ^ -> qnotfound, ^, -1; // не нашли девять
+q9end, 1 -> q9, 1, 0;
+q9end, 0 -> q9, 0, 0;
+q9n, 0 -> q9n, 0, -1; // нужно удалить штрихи у ведущих нулей
+q9n, 1 -> q9n, 1, -1;
+q9n, 0' -> q9n, 0, -1;
+q9n, ^ -> qskip, ^, +1;
+q9n, * -> qskip, *, +1;
 
-    qskip, 0 -> qskip, 0, +1; // возвращаемся к поиску девятки
-    qskip, 1 -> qskip, 1, +1;
-    qskip, E -> q9, E, +1;
+qskip, 0 -> qskip, 0, +1; // возвращаемся к поиску девять после того, как удалили штрихи у ведущих нулей
+qskip, 1 -> qskip, 1, +1;
+qskip, ^ -> q9, ^, +1;
 
-    qnotfound, 1 -> qnotfound, 1, -1; // не нашли девятку - идем до конца, удаляя все вспомогательные метки
-    qnotfound, 0 -> qnotfound, 0, -1;
-    qnotfound, 0' -> qnotfound, 0, -1;
-    qnotfound, E -> qnotfound, E, -1;
-    qnotfound, * -> qstop, E, +1;
+qnotfound, 1 -> qnotfound, 1, -1; // не нашли девять - идем в нулевую ячейку, удаляя все вспомогательные метки
+qnotfound, 0 -> qnotfound, 0, -1;
+qnotfound, 0' -> qnotfound, 0, -1;
+qnotfound, ^ -> qnotfound, ^, -1;
+qnotfound, * -> qstop, ^, +1;
 
-    qe, 1 -> qe, 1, +1; // идем до конца, когда все же нашли девятку
-    qe, 0 -> qe, 0, +1;
-    qe, E -> qeE, E, +1;
+qgoend, 1 -> qgoend, 1, +1; // идем до конца, когда все же нашли девять
+qgoend, 0 -> qgoend, 0, +1;
+qgoend, ^ -> qmarkend, ^, +1;
 
-    qeE, 0 -> qe, 0, +1;
-    qeE, 1 -> qe, 1, +1;
-    qeE, E -> qeE''', E, -1; // штрихуем последний пробел
-    qeE''', E -> qdelete, E''', -1;
+qmarkend, 0 -> qgoend, 0, +1;
+qmarkend, 1 -> qgoend, 1, +1;
+qmarkend, ^ -> qmarkend''', ^, -1; // штрихуем последний пробел
+qmarkend''', ^ -> qdelete, ^''', -1;
 
-    qdelete, 0 -> qdelete, 0, -1; // удаляем штрихованные нули
-    qdelete, 0' -> qdelete, E, -1;
-    qdelete, 1 -> qdelete, 1, -1;
-    qdelete, E -> qdelete, E, -1;
-    qdelete, * -> qs, *, +1;
+qdelete, 0 -> qdelete, 0, -1; // удаляем штрихованные нули
+qdelete, 0' -> qdelete, ^, -1;
+qdelete, 1 -> qdelete, 1, -1;
+qdelete, ^ -> qdelete, ^, -1;
+qdelete, * -> qs, *, +1;
 
-    qs, * -> qs, *, +1; // сдвиги
-    qs, E -> qs, E, +1;
+qs, * -> qs, *, +1; // после удаления штрихованных нулей начинаем процедуру сдвига чисел
+qs, ^ -> qs, ^, +1;
+qs, 1 -> qword, 1, +1;
+qs, 0 -> qword, 0, +1;
 
-    qend, 0 -> qend, 0, -1;
-    qend, 1 -> qend, 1, -1;
-    qend, E -> qend, E, -1;
-    qend, E'' -> qend, E, -1;
-    qend, * -> qstop, E, +1;
+qword, 1 -> qword, 1, +1; // идем до конца слова и ставим штрих на пробеле
+qword, 0 -> qword, 0, +1;
+qword, ^ -> qcheckshift, ^', -1;
+qword, ^''' -> qcheckshift, ^''', -1;
 
-    qs, 1 -> qword, 1, +1;
-    qs, 0 -> qword, 0, +1;
+qcheckshift, 0 -> qcheckshift, 0, -1; // идем до предыдущего числа и ставим ^'' в нужном месте, на которое поставим символ
+qcheckshift, 1 -> qcheckshift, 1, -1;
+qcheckshift, * -> qskipshifted, *, +1;
+qcheckshift, ^ -> qcheckspace, ^, -1;
 
-    qword, 1 -> qword, 1, +1; // идем до конца слова и ставим штрих на пробеле
-    qword, 0 -> qword, 0, +1;
-    qword, E -> qcheckshift, E', -1;
-    qword, E''' -> qcheckshift, E''', -1;
+qcheckspace, ^ -> qcheckspace, ^, -1;
+qcheckspace, 1 -> qcreatespace, 1, +1;
+qcheckspace, 0 -> qcreatespace, 0, +1;
+qcheckspace, ^'' -> qmarkspace, ^, +1;
 
-    qcheckshift, 0 -> qcheckshift, 0, -1; // идем до предыдущего числа и ставим E'' в нужном месте, на которое поставим символ
-    qcheckshift, 1 -> qcheckshift, 1, -1;
-    qcheckshift, * -> qskipshifted, *, +1;
-    qcheckshift, E -> qcheckspace, E, -1;
+qcreatespace, ^ -> qmarkspace, ^, +1;
 
-    qcheckspace, E -> qcheckspace, E, -1;
-    qcheckspace, 1 -> qcreatespace, 1, +1;
-    qcheckspace, 0 -> qcreatespace, 0, +1;
-    qcheckspace, E'' -> qmarkspace, E, +1;
+qmarkspace, ^ -> qshift, ^'', +1;
 
-    qcreatespace, E -> qmarkspace, E, +1;
+qskipshifted, 1 -> qskipshifted, 1, +1; // пропускаем сдвинутое число
+qskipshifted, 0 -> qskipshifted, 0, +1;
+qskipshifted, ^ -> qs, ^, +1;
+qskipshifted, ^' -> qs, ^, +1;
+qskipshifted, ^''' -> qend, ^, -1; // если вдруг дошли до конца, запускаем процедуру очистки от пометок
 
-    qmarkspace, E -> qshift, E'', +1;
+qend, 0 -> qend, 0, -1; // конец программы - идем в нулевую ячейку, не забывая удалить *
+qend, 1 -> qend, 1, -1;
+qend, ^ -> qend, ^, -1;
+qend, ^'' -> qend, ^, -1;
+qend, * -> qstop, ^, +1;
 
-    qskipshifted, 1 -> qskipshifted, 1, +1; // пропускаем сдвинутое число
-    qskipshifted, 0 -> qskipshifted, 0, +1;
-    qskipshifted, E -> qs, E, +1;
-    qskipshifted, E' -> qs, E, +1;
-    qskipshifted, E''' -> qend, E, -1; // если вдруг дошли до конца, запускаем процедуру очисти от пометок
+qdeleteend, 1 -> qdeleteend, 1, +1; // чистим отметку у символа после последнего числа
+qdeleteend, 0 -> qdeleteend, 0, +1;
+qdeleteend, ^ -> qdeleteend, ^, +1;
+qdeleteend, ^''' -> qend, ^, -1;
 
-    qdeleteend, 1 -> qdeleteend, 1, +1;
-    qdeleteend, 0 -> qdeleteend, 0, +1;
-    qdeleteend, E -> qdeleteend, E, +1;
-    qdeleteend, E''' -> qend, E, -1;
+qshift, ^ -> qshift, ^, +1; // процедура сдвига: идем до числа, запоминаем первую цифру, ищем свободное место, ставим
+qshift, ^' -> qs, ^, +1;
+qshift, ^''' -> qend, ^, -1;
 
-    qshift, E -> qshift, E, +1; // процедура сдвига: идем до числа, запоминаем цифру, ищем свободное место
-    qshift, E' -> qs, E, +1;
-    qshift, E''' -> qend, E, -1;
+qshift, 1 -> qshift1, ^, -1;
+qshifft1, 1 -> qshift1, 1, -1;
+qshift1, 0 -> qshift1, 0, -1;
+qshift1, ^ -> qshift1, ^, -1;
+qshift1, ^'' -> qmarkspace, 1, +1;
 
-    qshift, 1 -> qshift1, E, -1;
-    qshifft1, 1 -> qshift1, 1, -1;
-    qshift1, 0 -> qshift1, 0, -1;
-    qshift1, E -> qshift1, E, -1;
-    qshift1, E'' -> qmarkspace, 1, +1;
-
-    qshift, 0 -> qshift0, E, -1;
-    qshifft0, 1 -> qshift0, 1, -1;
-    qshift0, 0 -> qshift0, 0, -1;
-    qshift0, E -> qshift0, E, -1;
-    qshift0, E'' -> qmarkspace, 0, +1;
-}
+qshift, 0 -> qshift0, ^, -1;
+qshifft0, 1 -> qshift0, 1, -1;
+qshift0, 0 -> qshift0, 0, -1;
+qshift0, ^ -> qshift0, ^, -1;
+qshift0, ^'' -> qmarkspace, 0, +1;

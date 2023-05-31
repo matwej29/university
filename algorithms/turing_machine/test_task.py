@@ -3,12 +3,12 @@ from turing_machine import Turing
 
 
 def start(raw_input):
-    with open("res") as f:
+    with open("program.txt") as f:
         lines = f.readlines()
 
     mT = Turing()
     mT.set_program(lines)
-    return mT.start(''.join(list(map(lambda x: 'E' if x == " " else x, raw_input))))
+    return mT.start(''.join(list(map(lambda x: '^' if x == " " else x, raw_input))))
 
 
 class TaskTests(unittest.TestCase):
