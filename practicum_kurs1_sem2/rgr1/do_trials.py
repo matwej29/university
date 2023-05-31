@@ -34,16 +34,27 @@ def do_trials(func, array_len, sort_type, measure_type = 'time', trials = 1):
     result = 0
 
     ### НАЧАЛО ВАШЕГО КОДА
-    from time import time
-    arrays = [generate_array(array_len, sort_type) for _ in range(array_len)]
+    arrays = [generate_array(array_len, sort_type) for _ in range(array_len)]  # must be trials
 
-    time_start = time()
-    for arr in arrays:
-        func(arr)
-    time_end = time()
+    if measure_type == 'time':
+        from time import time
 
-    # время в миллисекундах
-    result = (time_end - time_start) / array_len / 1000
+        time_start = time()
+        for arr in arrays:
+            func(arr)
+        time_end = time()
+
+        # время в миллисекундах
+        result = (time_end - time_start) / array_len / 1000
+    elif measure_type == 'counter':
+        counter = 0
+
+        for arr in arrays:
+            func(arr)
+
+        result = counter / trials
+    else:
+        raise ValueError(f"Not knows measure_type: {measure_type}")
     ### КОНЕЦ ВАШЕГО КОДА
 
     return result
