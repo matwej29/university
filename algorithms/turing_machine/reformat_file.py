@@ -13,7 +13,7 @@ def reformat():
 
     for i, line in enumerate(lines):
         if ";" not in line: continue
-        result.append(line.split(';')[0].strip()+';')
+        result.append(line.split(';')[0].strip())
         if "}" in line: break
 
     result = '\n'.join(result)
