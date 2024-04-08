@@ -1,10 +1,13 @@
+//
+// Created by Матвей Щербаков on 08.04.2024.
+//
 #include <iostream>
 #include <fstream>
 
-#include "lexer.h"
+#include "lex/include/lexer.h"
 
 int main() {
-    std::ifstream file("../../main.txt");
+    std::ifstream file("../main.txt");
 
     if (!file.is_open()) {
         std::cout << "File not found" << std::endl;
@@ -18,4 +21,6 @@ int main() {
         token = lex.getNextLexem();
     }
     std::cout << TokenTypeToString.at(token.type);
+
+
 }

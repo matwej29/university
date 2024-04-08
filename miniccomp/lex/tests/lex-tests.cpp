@@ -352,7 +352,7 @@ TEST(ErrorCode, EmptyChar) {
     using namespace std;
     string prog = R"(out '')";
     vector<pair<string, string>> correct = {
-        {"kwout", ""},
+        {"keyword", "out"},
         {"invalid", ""},
     };
 
@@ -373,7 +373,7 @@ TEST(ErrorCode, DoubleChar) {
     using namespace std;
     string prog = R"(out 'xy')";
     vector<pair<string, string>> correct = {
-        {"kwout", ""},
+        {"keyword", "out"},
         {"invalid", ""},
     };
 
@@ -392,7 +392,7 @@ TEST(ErrorCode, DoubleChar) {
 
 TEST(ErrorCode, SingleOperator) {
     using namespace std;
-    string prog = R"(a | b)";
+    string prog = "a | b";
     vector<pair<string, string>> correct = {
         {"id", "a"},
         {"invalid", ""},
