@@ -4,7 +4,6 @@
 #include <functional>
 #include <unordered_set>
 #include <unordered_map>
-#include <expected>
 #include <optional>
 #include "./lang.h"
 
@@ -82,17 +81,6 @@ inline bool ANY_LETTER_DIGIT(char c) {
 inline bool ID_FILTER(char c) {
     return ANY_LETTER_DIGIT(c) || c == '_';
 }
-
-struct Token {
-    TokenType type;
-    std::string value;
-
-    explicit Token(TokenType type) : type(type) {
-    }
-
-    Token(TokenType type, std::string value) : type(type), value(std::move(value)) {
-    }
-};
 
 struct Edge {
     const u_int next_state;

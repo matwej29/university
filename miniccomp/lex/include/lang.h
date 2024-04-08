@@ -35,4 +35,15 @@ enum TokenType {
     END_OF_FILE // 26
 };
 
+struct Token {
+    TokenType type;
+    std::string value;
+
+    explicit Token(TokenType type) : type(type) {
+    }
+
+    Token(TokenType type, std::string value) : type(type), value(std::move(value)) {
+    }
+};
+
 #endif //MINICCOMP_LANG_H
