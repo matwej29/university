@@ -1,6 +1,3 @@
-#ifndef LEXER_H
-#define LEXER_H
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -8,6 +5,10 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <expected>
+#include "./lang.h"
+
+#ifndef MINICCOMP_LEXER_H
+#define MINICCOMP_LEXER_H
 
 
 const std::unordered_set<std::string> keywords = {
@@ -22,36 +23,6 @@ const std::unordered_set<std::string> keywords = {
         "return",
         "in",
         "out"
-};
-
-enum TokenType {
-    opinc, // 0
-    opplus, // 1
-    opeq, // 2
-    opassign, // 3
-    opne, // 4
-    opnot, // 5
-    oplt, // 6
-    ople, // 7
-    opor, // 8
-    opand, // 9
-    lpar, // ( 10
-    rpar, // 11
-    lbrace, // { 12
-    rbrace, // 13
-    semicolon, // 14
-    comma, // 15
-    period, // 16
-    opgt, // 17
-    opmul, // 18
-    kchar, // 19
-    kstr, // 20
-    kid, // 21
-    keyword, // 22
-    opminus, // 23
-    knum, // 24
-    INVALID, // 25
-    END_OF_FILE // 26
 };
 
 const std::unordered_map<size_t, std::string> TokenTypeToString = {
@@ -107,6 +78,9 @@ inline bool ANY_LETTER_DIGIT(char c) {
     return ANY_LETTER(c) || ANY_DIGIT(c);
 }
 
+inline bool ID_FILTER(char c) {
+    return ANY_LETTER_DIGIT(c) || c == '_';
+}
 
 struct Token {
     TokenType type;
@@ -605,7 +579,7 @@ struct Lexer {
                     {
                             {
                                     21,
-                                    ANY_LETTER_DIGIT,
+                                    ID_FILTER,
                                     [this]() {
                                         this->buffer.append(&this->current_char);
                                         this->next_char();
@@ -620,12 +594,6 @@ struct Lexer {
                                         if ('0' <= identificator[0] and identificator[0] <= '9') {
                                             return Token{TokenType::INVALID};
                                         }
-                                        // for (const unsigned char c: identificator) {
-                                        //     // зависит от локали
-                                        //     if (!std::isalnum(c)) {
-                                        //         return Token{TokenType::INVALID};
-                                        //     }
-                                        // }
 
                                         if (keywords.contains(identificator)) {
                                             return Token{TokenType::keyword, identificator};
@@ -688,4 +656,4 @@ struct Lexer {
     };
 };
 
-#endif // LEXER_H
+#endif // MINICCOMP_LEXER_H
