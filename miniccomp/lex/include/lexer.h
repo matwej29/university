@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <expected>
+#include <optional>
 #include "./lang.h"
 
 #ifndef MINICCOMP_LEXER_H
@@ -93,17 +94,10 @@ struct Token {
     }
 };
 
-struct None {
-};
-
-using Lexem = std::expected<Token, None>;
-
-const Lexem NONE = std::unexpected(None{});
-
 struct Edge {
     const u_int next_state;
     const std::function<bool(char)> filter;
-    const std::function<Lexem()> action;
+    const std::function<std::optional<Token>()> action;
 };
 
 struct Lexer {
@@ -117,7 +111,7 @@ struct Lexer {
         next_char();
     }
 
-    Lexem processState() {
+    std::optional<Token> processState() {
         for (const Edge &edge: graph.at(current_state)) {
             if (!edge.filter(current_char)) continue;
 
@@ -126,14 +120,14 @@ struct Lexer {
             if (result.has_value()) {
                 return result.value();
             } else {
-                return NONE;
+                return std::nullopt;
             }
         }
         return Token{INVALID};
     }
 
     Token getNextLexem() {
-        Lexem result = NONE;
+        std::optional<Token> result = std::nullopt;
         do {
             result = processState();
         } while (!result.has_value());
@@ -159,7 +153,7 @@ struct Lexer {
                                     FILTER_CHAR<' '>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
                             {
@@ -167,7 +161,7 @@ struct Lexer {
                                     FILTER_CHAR<'\n'>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
                             {
@@ -248,7 +242,7 @@ struct Lexer {
                                     FILTER_CHAR<'<'>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -257,7 +251,7 @@ struct Lexer {
                                     FILTER_CHAR<'!'>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -266,7 +260,7 @@ struct Lexer {
                                     FILTER_CHAR<'='>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -275,7 +269,7 @@ struct Lexer {
                                     FILTER_CHAR<'+'>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -284,7 +278,7 @@ struct Lexer {
                                     FILTER_CHAR<'|'>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -293,7 +287,7 @@ struct Lexer {
                                     FILTER_CHAR<'&'>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -302,7 +296,7 @@ struct Lexer {
                                     FILTER_CHAR<'\''>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -312,7 +306,7 @@ struct Lexer {
                                     [this]() {
                                         this->next_char();
                                         this->buffer = "";
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -322,7 +316,7 @@ struct Lexer {
                                     [this]() {
                                         this->buffer.assign(&this->current_char);
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -332,7 +326,7 @@ struct Lexer {
                                     [this]() {
                                         this->buffer = "-";
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -342,7 +336,7 @@ struct Lexer {
                                     [this]() {
                                         this->buffer.assign(&this->current_char);
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
 
@@ -450,7 +444,7 @@ struct Lexer {
                                     FILTER_CHAR<'|'>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     },
                             }
                     }
@@ -479,7 +473,7 @@ struct Lexer {
                                     FILTER_CHAR<'&'>,
                                     [this]() {
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             }
                     }
@@ -505,8 +499,7 @@ struct Lexer {
                             {
                                     0,
                                     FILTER_CHAR<'\''>,
-                                    [this]() {
-                                        //                                        this->next_char();
+                                    []() {
                                         return Token{TokenType::INVALID};
                                     }
                             },
@@ -516,7 +509,7 @@ struct Lexer {
                                     [this]() {
                                         this->buffer.assign(&this->current_char);
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             }
                     }
@@ -536,8 +529,7 @@ struct Lexer {
                             {
                                     0,
                                     FILTER_ANY,
-                                    [this]() {
-                                        //                                    this->next_char();
+                                    []() {
                                         return Token{TokenType::INVALID};
                                     }
                             }
@@ -568,7 +560,7 @@ struct Lexer {
                                     [this]() {
                                         this->buffer.append(&this->current_char);
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             }
                     }
@@ -583,7 +575,7 @@ struct Lexer {
                                     [this]() {
                                         this->buffer.append(&this->current_char);
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
                             {
@@ -614,7 +606,7 @@ struct Lexer {
                                     [this]() {
                                         this->buffer.append(&this->current_char);
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
                             {
@@ -637,18 +629,14 @@ struct Lexer {
                                     [this]() {
                                         this->buffer.append(&this->current_char);
                                         this->next_char();
-                                        return std::unexpected(None{});
+                                        return std::nullopt;
                                     }
                             },
                             {
                                     0,
                                     FILTER_ANY,
                                     [this]() {
-                                        // if (keywords.contains(this->buffer)) {
-                                        //     return Token{TokenType::kid};
-                                        // } else {
                                         return Token{TokenType::knum, this->buffer};
-                                        // }
                                     }
                             }
                     }
