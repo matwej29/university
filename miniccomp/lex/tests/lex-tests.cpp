@@ -34,7 +34,7 @@ return 0;
     Lexer lexer(stream);
 
     for (const auto& correct_token : correct) {
-        Token test_token = lexer.getNextLexem();
+        Token test_token = lexer.getNextToken();
         EXPECT_EQ(correct_token.type, test_token.type);
         if (!correct_token.value.empty()) {
             EXPECT_EQ(correct_token.value, test_token.value);
@@ -215,7 +215,7 @@ return 0;
     Lexer lexer(stream);
 
     for (auto&& correct_token : correct) {
-        Token test_token = lexer.getNextLexem();
+        Token test_token = lexer.getNextToken();
         std::cout << TokenTypeToString.at(correct_token.type) << " " <<
             TokenTypeToString.at(test_token.type) << " " << correct_token.value << " " << test_token.value;
         EXPECT_EQ(correct_token.type, test_token.type) << TokenTypeToString.at(correct_token.type) << " " <<
@@ -246,7 +246,7 @@ TEST(TrickyCode, BasicProgram) {
     Lexer lexer(stream);
 
     for (auto &&lex: correct) {
-        auto next_lex = lexer.getNextLexem();
+        auto next_lex = lexer.getNextToken();
         if (lex.first == "eof" and next_lex.type == TokenType::END_OF_FILE) {
             break;
         }
@@ -276,7 +276,7 @@ for everyone!!!
     Lexer lexer(stream);
 
     for (auto &&lex: correct) {
-        auto next_lex = lexer.getNextLexem();
+        auto next_lex = lexer.getNextToken();
         if (lex.first == "eof" and next_lex.type == TokenType::END_OF_FILE) {
             break;
         }
@@ -318,7 +318,7 @@ TEST(TrickyCode, Expressions) {
     Lexer lexer(stream);
 
     for (auto &&lex: correct) {
-        auto next_lex = lexer.getNextLexem();
+        auto next_lex = lexer.getNextToken();
         if (lex.first == "eof" and next_lex.type == TokenType::END_OF_FILE) {
             break;
         }
@@ -339,7 +339,7 @@ TEST(ErrorCode, BadString) {
     Lexer lexer(stream);
 
     for (auto &&lex: correct) {
-        auto next_lex = lexer.getNextLexem();
+        auto next_lex = lexer.getNextToken();
         if (lex.first == "eof" and next_lex.type == TokenType::END_OF_FILE) {
             break;
         }
@@ -360,7 +360,7 @@ TEST(ErrorCode, EmptyChar) {
     Lexer lexer(stream);
 
     for (auto &&lex: correct) {
-        auto next_lex = lexer.getNextLexem();
+        auto next_lex = lexer.getNextToken();
         if (lex.first == "invalid" and next_lex.type == TokenType::INVALID) {
             break;
         }
@@ -381,7 +381,7 @@ TEST(ErrorCode, DoubleChar) {
     Lexer lexer(stream);
 
     for (auto &&lex: correct) {
-        auto next_lex = lexer.getNextLexem();
+        auto next_lex = lexer.getNextToken();
         if (lex.first == "invalid" and next_lex.type == TokenType::INVALID) {
             break;
         }
@@ -402,7 +402,7 @@ TEST(ErrorCode, SingleOperator) {
     Lexer lexer(stream);
 
     for (auto &&lex: correct) {
-        auto next_lex = lexer.getNextLexem();
+        auto next_lex = lexer.getNextToken();
         if (lex.first == "invalid" and next_lex.type == TokenType::INVALID) {
             break;
         }

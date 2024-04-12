@@ -114,7 +114,7 @@ struct Lexer {
         return Token{INVALID};
     }
 
-    Token getNextLexem() {
+    Token getNextToken() {
         std::optional<Token> result = std::nullopt;
         do {
             result = processState();

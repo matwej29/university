@@ -12,10 +12,10 @@ int main() {
     }
 
     Lexer lex(file);
-    Token token = lex.getNextLexem();
+    Token token = lex.getNextToken();
     while (token.type != TokenType::END_OF_FILE && token.type != TokenType::INVALID) {
         std::cout << TokenTypeToString.at(token.type) << ' ' << token.value << std::endl;
-        token = lex.getNextLexem();
+        token = lex.getNextToken();
     }
     std::cout << TokenTypeToString.at(token.type);
 }
