@@ -12,3 +12,5 @@ add_subdirectory(parser)
 
 add_executable(miniccomp main.cpp)
 
+target_link_libraries(miniccomp lex parser)
+
