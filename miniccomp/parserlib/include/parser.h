@@ -1,26 +1,27 @@
 //
 // Created by Матвей Щербаков on 08.04.2024.
 //
-#include <istream>
-#include <functional>
-#include "../../lex/include/lang.h"
-
 #ifndef MINICCOMP_PARSER_H
 #define MINICCOMP_PARSER_H
+
+#include <functional>
+#include <istream>
+
+#include "lang.hpp"
 
 class Parser {
 public:
     explicit Parser(std::function<Token()> getNextToken);
     bool validate();
 
-    std::vector<std::tuple<int, std::string, std::string>> callsHierarchy;
+    std::vector<std::tuple<int, bool, std::string, std::string>> callsHierarchy;
     int call_depth = 0;
 
 private:
-//    std::istream &stream;
+    //    std::istream &stream;
     std::vector<Token> rollbackTokens;
     std::function<Token()> getNextToken;
-    Token currentToken = {TokenType::INVALID, ""};
+    Token currentToken = { TokenType::INVALID, "" };
 
     void setCurrentToken();
 
@@ -40,4 +41,4 @@ private:
     bool Expr1List();
 };
 
-#endif //MINICCOMP_PARSER_H
+#endif // MINICCOMP_PARSER_H

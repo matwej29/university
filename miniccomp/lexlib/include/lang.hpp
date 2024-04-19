@@ -5,6 +5,8 @@
 #ifndef MINICCOMP_LANG_H
 #define MINICCOMP_LANG_H
 
+#include <string>
+
 enum TokenType {
     opinc, // 0
     opplus, // 1
@@ -39,11 +41,16 @@ struct Token {
     TokenType type;
     std::string value;
 
-    explicit Token(TokenType type) : type(type) {
+    explicit Token(TokenType type)
+        : type(type)
+    {
     }
 
-    Token(TokenType type, std::string value) : type(type), value(std::move(value)) {
+    Token(TokenType type, std::string value)
+        : type(type)
+        , value(std::move(value))
+    {
     }
 };
 
-#endif //MINICCOMP_LANG_H
+#endif // MINICCOMP_LANG_H
