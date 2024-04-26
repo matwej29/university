@@ -7,7 +7,7 @@
 #include <map>
 #include <utility>
 
-// FIXME: delete this
+// FIXME: delete it, but may be not
 #include "lexer.hpp"
 
 Parser::Parser(std::function<Token()> getNextToken)
@@ -15,6 +15,7 @@ Parser::Parser(std::function<Token()> getNextToken)
     currentToken = this->getNextToken();
 }
 
+// FIXME: rename to setNextToken
 void Parser::setCurrentToken() {
     this->currentToken = this->getNextToken();
 }
@@ -23,19 +24,19 @@ bool Parser::validate() {
     std::cout.setf(std::ios::unitbuf);
     bool result = Parser::Expr();
 
-    // draw
-    std::vector<std::pair<std::string, int>> ntActive;
-    bool wasLB = false;
-    for (auto &x: callsHierarchy) {
-        int c_depth = std::get<0>(x);
-        bool c_active = std::get<1>(x);
-        std::string c_term = std::get<2>(x);
-        std::string c_nterm = std::get<3>(x);
+    // graph
+    std::vector<std::pair<std::string, int>> activeNonterms;
+    bool wasLineBreak = false;
+    for (const auto &x: callsHierarchy) {
+        int current_depth = std::get<0>(x);
+        bool current_entered = std::get<1>(x);
+        std::string current_term = std::get<2>(x);
+        std::string current_nonterm = std::get<3>(x);
 
-        if (wasLB) {
-            for (auto i = 0; i < c_depth - c_active; ++i) {
+        if (wasLineBreak) {
+            for (auto i = 0; i < current_depth - current_entered; ++i) {
                 bool found = false;
-                for (const auto &a_nT: ntActive) {
+                for (const auto &a_nT: activeNonterms) {
                     // вроде можно за O(1)
                     if (a_nT.second == i) {
                         found = true;
@@ -45,42 +46,47 @@ bool Parser::validate() {
                 if (found) {
                     std::cout << "│ ";
                 } else {
-                    std::cout << " ";
+                    std::cout << "  ";
                 }
             }
 
-            if (c_active and wasLB) {
-                std::cout << "├";
+            if (current_entered) {
+                std::cout << "├ ";
             }
         }
 
-        if (!c_term.empty()) {
-            std::cout << ' ' << c_term << ' ';
-            if (c_active) {
-                wasLB = false;
+        if (!current_term.empty()) {
+            std::cout << current_term << ' ';
+            if (current_entered) {
+                wasLineBreak = false;
                 continue;
             }
         }
-        if (c_active and !c_nterm.empty()) {
-            ntActive.emplace_back(c_nterm, c_depth);
-            std::cout << c_nterm << std::endl;
-            wasLB = true;
+        if (current_entered and !current_nonterm.empty()) {
+            activeNonterms.emplace_back(current_nonterm, current_depth);
+            std::cout << current_nonterm << std::endl;
+            wasLineBreak = true;
         } else {
-            if (!c_nterm.empty()) {
+            if (!current_nonterm.empty()) {
                 // вроде нужно искать с конца
-                auto ind = std::find(ntActive.begin(), ntActive.end(),
-                                     std::pair<std::string, int>(c_nterm, c_depth));
-                if (ind != ntActive.end()) {
-                    ntActive.erase(ind);
-                    std::cout << "└";
-                    wasLB = false;
+                auto ind = std::find(activeNonterms.begin(), activeNonterms.end(),
+                                     std::pair<std::string, int>(current_nonterm, current_depth));
+                if (ind != activeNonterms.end()) {
+//                    if(*ind == activeNonterms.back()){
+//                        std::cout << "really end ";
+//                    } else {
+//                        std::cout << "not end";
+//                    }
+                    activeNonterms.erase(ind);
+                    std::cout << "└ ";
+                    wasLineBreak = false;
                 } else {
-                    std::cout << c_nterm << std::endl;
-                    wasLB = true;
+                    std::cout << current_nonterm << std::endl;
+                    wasLineBreak = true;
                 }
             } else {
                 std::cout << std::endl;
-                wasLB = true;
+                wasLineBreak = true;
             }
         }
     }
@@ -91,6 +97,237 @@ bool Parser::validate() {
     }
     return result;
 }
+
+//bool Parser::DeclareStmt() {
+//    if (not Type()) {
+//        return false;
+//    }
+//    if (currentToken.type == TokenType::kid) {
+//        setCurrentToken();
+//    } else {
+//        return false;
+//    }
+//    if (not DeclareStmtL) {
+//        return false;
+//    }
+//    return true;
+//}
+//
+//bool Parser::DeclareStmtL() {
+//    if (currentToken.type == TokenType::lpar) {
+//        setCurrentToken();
+//        if (not Param()) {
+//            return false;
+//        }
+//        if (currentToken.type == TokenType::rpar) {
+//            setCurrentToken();
+//        } else {
+//            return false;
+//        }
+//        if (currentToken.type == TokenType::lbrace) {
+//            setCurrentToken();
+//        } else {
+//            return false;
+//        }
+//        if (not StmtList()) {
+//            return false;
+//        }
+//        if (currentToken.type == TokenType::rbrace) {
+//            setCurrentToken();
+//        } else {
+//            return false;
+//        }
+//        return true;
+//    } else if (currentToken.type == TokenType::opassign) {
+//        setCurrentToken();
+//        if (currentToken.type == TokenType::knum) {
+//            setCurrentToken();
+//        } else {
+//            return false;
+//        }
+//        if (not DeclareVarL()) {
+//            return false;
+//        }
+//        if (currentToken.type == TokenType::semicolon) {
+//            setCurrentToken();
+//        } else {
+//            return false;
+//        }
+//        return true;
+//    } else if (DeclareVarL()) {
+//        if (currentToken.type == TokenType::semicolon) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
+//    return false;
+//}
+//
+//bool Parser::Type() {
+//    if (currentToken.type == TokenType::keyword and (currentToken.value == "int" or currentToken.value == "char")) {
+//        setCurrentToken();
+//        return true;
+//    }
+//    return false;
+//}
+//
+//bool Parser::DeclVarList() {
+//    if (currentToken.type == TokenType::comma) {
+//        setCurrentToken();
+//        if (currentToken.type == TokenType::kid) {
+//            setCurrentToken();
+//        } else {
+//            return false;
+//        }
+//        if (not InitVar()) {
+//            return false;
+//        }
+//        if (not DeclVarList()) {
+//            return false;
+//        }
+//        return true;
+//    }
+//    return true;
+//}
+//
+//bool Parser::InitVar() {
+//    if (currentToken.type != TokenType::opassign) {
+//        return false;
+//    }
+//    setCurrentToken();
+//    if (currentToken.type == TokenType::knum or
+//        currentToken.type == TokenType::kchar) {
+//        setCurrentToken();
+//        return true;
+//    }
+//    return false; // никаких UB
+//}
+//
+//bool Parser::Param() {
+//    if (Type()) {
+//        if (currentToken.type == TokenType::kid) {
+//            setCurrentToken();
+//        } else {
+//            return false;
+//        }
+//        if (not ParamList()) {
+//            return false;
+//        }
+//    }
+//
+//    return true;
+//}
+//
+//bool Parser::ParamList() {
+//    if (currentToken.type == TokenType::comma) {
+//        setCurrentToken();
+//        if (not Type()) {
+//            return false;
+//        }
+//        if (currentToken.type == TokenType::kid) {
+//            setCurrentToken();
+//        } else {
+//            return false;
+//        }
+//        if (not ParamList()) {
+//            return false;
+//        }
+//    }
+//    return true;
+//}
+//
+//bool Parser::StmtList() {
+//    if (not Stmt()) {
+//        return true;
+//    }
+//    if (not StmtList()) {
+//        return false;
+//    }
+//    return true;
+//}
+//
+//bool Parser::Stmt() {
+//    if (DeclareStmt()) {
+//        return true;
+//    }
+//    if (AssignOrCallOp()) {
+//        return true;
+//    }
+//    if (WhileOp) {
+//        return true;
+//    }
+//    if (ForOp) {
+//        return true;
+//    }
+//    if (IfOp) {
+//        return true;
+//    }
+//    if (SwitchOp) {
+//        return true;
+//    }
+//    if (IOp) {
+//        return true;
+//    }
+//    if (OOp) {
+//        return true;
+//    }
+//    if (currentToken.type == TokenType::semicolon) {
+//        setCurrentToken();
+//        return true;
+//    }
+//    if (currentToken.type == TokenType::lbrace) {
+//        setCurrentToken();
+//        if (not StmtList()) {
+//            return false;
+//        }
+//        if (currentToken.type == TokenType::rbrace) {
+//            setCurrentToken();
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
+//    if (currentToken.type == TokenType::keyword and currentToken.value == "return") {
+//        setCurrentToken();
+//        if (not Expr()) {
+//            return false;
+//        }
+//        if (currentToken.type == TokenType::semicolon) {
+//            setCurrentToken();
+//            return true;
+//        }
+//        return false;
+//    }
+//    return false;
+//}
+//
+//bool Parser::AssignOrCallOp(){
+//    if(not AssignOrCall()){
+//        return false;
+//    }
+//    if(currentToken.type == TokenType::semicolon){
+//        setCurrentToken();
+//        return true;
+//    }
+//    return false;
+//}
+//
+//bool Parser::AssignOrCall(){
+//    if(currentToken.type == TokenType::kid){
+//        setCurrentToken();
+//        if(not AssignOrCallL()){
+//            return false;
+//        }
+//        return true;
+//    }
+//    return false;
+//}
+//
+//bool Parser::AssignOrCallL(){
+//
+//}
+
 
 bool Parser::Expr() {
     int current_depth = call_depth;
