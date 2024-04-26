@@ -39,6 +39,10 @@ private:
     bool Expr2();
     bool Expr1();
     bool Expr1List();
+
+    bool Arg();
+    bool ArgList();
+
 };
 
 #endif // MINICCOMP_PARSER_H
