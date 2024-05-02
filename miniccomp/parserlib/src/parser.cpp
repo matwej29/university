@@ -22,7 +22,7 @@ void Parser::setCurrentToken() {
 
 bool Parser::validate() {
     std::cout.setf(std::ios::unitbuf);
-    bool result = Parser::Expr();
+    bool result = Parser::StmtList();
 
     // graph
     std::vector<std::pair<std::string, int>> activeNonterms;
@@ -64,270 +64,793 @@ bool Parser::validate() {
         }
         if (current_entered and !current_nonterm.empty()) {
             activeNonterms.emplace_back(current_nonterm, current_depth);
-            std::cout << current_nonterm << std::endl;
+            std::cout << current_nonterm << '\n';
             wasLineBreak = true;
         } else {
             if (!current_nonterm.empty()) {
-                // вроде нужно искать с конца
-                auto ind = std::find(activeNonterms.begin(), activeNonterms.end(),
-                                     std::pair<std::string, int>(current_nonterm, current_depth));
-                if (ind != activeNonterms.end()) {
-//                    if(*ind == activeNonterms.back()){
-//                        std::cout << "really end ";
-//                    } else {
-//                        std::cout << "not end";
-//                    }
-                    activeNonterms.erase(ind);
-                    std::cout << "└ ";
-                    wasLineBreak = false;
+                if (current_nonterm == activeNonterms.back().first) {
+                    activeNonterms.pop_back();
+                    if (!current_term.empty()) {
+                        wasLineBreak = false;
+                    } else {
+                        std::cout << "└ ";
+                        wasLineBreak = false;
+                    }
                 } else {
-                    std::cout << current_nonterm << std::endl;
+                    std::cout << current_nonterm << '\n';
                     wasLineBreak = true;
                 }
             } else {
-                std::cout << std::endl;
+                std::cout << '\n';
                 wasLineBreak = true;
             }
         }
     }
 
-    std::cout << std::endl;
+    std::cout << '\n';
     if (currentToken.type != TokenType::END_OF_FILE) {
         return false;
     }
     return result;
 }
 
-//bool Parser::DeclareStmt() {
-//    if (not Type()) {
-//        return false;
-//    }
-//    if (currentToken.type == TokenType::kid) {
-//        setCurrentToken();
-//    } else {
-//        return false;
-//    }
-//    if (not DeclareStmtL) {
-//        return false;
-//    }
-//    return true;
-//}
-//
-//bool Parser::DeclareStmtL() {
-//    if (currentToken.type == TokenType::lpar) {
-//        setCurrentToken();
-//        if (not Param()) {
-//            return false;
-//        }
-//        if (currentToken.type == TokenType::rpar) {
-//            setCurrentToken();
-//        } else {
-//            return false;
-//        }
-//        if (currentToken.type == TokenType::lbrace) {
-//            setCurrentToken();
-//        } else {
-//            return false;
-//        }
-//        if (not StmtList()) {
-//            return false;
-//        }
-//        if (currentToken.type == TokenType::rbrace) {
-//            setCurrentToken();
-//        } else {
-//            return false;
-//        }
-//        return true;
-//    } else if (currentToken.type == TokenType::opassign) {
-//        setCurrentToken();
-//        if (currentToken.type == TokenType::knum) {
-//            setCurrentToken();
-//        } else {
-//            return false;
-//        }
-//        if (not DeclareVarL()) {
-//            return false;
-//        }
-//        if (currentToken.type == TokenType::semicolon) {
-//            setCurrentToken();
-//        } else {
-//            return false;
-//        }
-//        return true;
-//    } else if (DeclareVarL()) {
-//        if (currentToken.type == TokenType::semicolon) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-//    return false;
-//}
-//
-//bool Parser::Type() {
-//    if (currentToken.type == TokenType::keyword and (currentToken.value == "int" or currentToken.value == "char")) {
-//        setCurrentToken();
-//        return true;
-//    }
-//    return false;
-//}
-//
-//bool Parser::DeclVarList() {
-//    if (currentToken.type == TokenType::comma) {
-//        setCurrentToken();
-//        if (currentToken.type == TokenType::kid) {
-//            setCurrentToken();
-//        } else {
-//            return false;
-//        }
-//        if (not InitVar()) {
-//            return false;
-//        }
-//        if (not DeclVarList()) {
-//            return false;
-//        }
-//        return true;
-//    }
-//    return true;
-//}
-//
-//bool Parser::InitVar() {
-//    if (currentToken.type != TokenType::opassign) {
-//        return false;
-//    }
-//    setCurrentToken();
-//    if (currentToken.type == TokenType::knum or
-//        currentToken.type == TokenType::kchar) {
-//        setCurrentToken();
-//        return true;
-//    }
-//    return false; // никаких UB
-//}
-//
-//bool Parser::Param() {
-//    if (Type()) {
-//        if (currentToken.type == TokenType::kid) {
-//            setCurrentToken();
-//        } else {
-//            return false;
-//        }
-//        if (not ParamList()) {
-//            return false;
-//        }
-//    }
-//
-//    return true;
-//}
-//
-//bool Parser::ParamList() {
-//    if (currentToken.type == TokenType::comma) {
-//        setCurrentToken();
-//        if (not Type()) {
-//            return false;
-//        }
-//        if (currentToken.type == TokenType::kid) {
-//            setCurrentToken();
-//        } else {
-//            return false;
-//        }
-//        if (not ParamList()) {
-//            return false;
-//        }
-//    }
-//    return true;
-//}
-//
-//bool Parser::StmtList() {
-//    if (not Stmt()) {
-//        return true;
-//    }
-//    if (not StmtList()) {
-//        return false;
-//    }
-//    return true;
-//}
-//
-//bool Parser::Stmt() {
-//    if (DeclareStmt()) {
-//        return true;
-//    }
-//    if (AssignOrCallOp()) {
-//        return true;
-//    }
-//    if (WhileOp) {
-//        return true;
-//    }
-//    if (ForOp) {
-//        return true;
-//    }
-//    if (IfOp) {
-//        return true;
-//    }
-//    if (SwitchOp) {
-//        return true;
-//    }
-//    if (IOp) {
-//        return true;
-//    }
-//    if (OOp) {
-//        return true;
-//    }
-//    if (currentToken.type == TokenType::semicolon) {
-//        setCurrentToken();
-//        return true;
-//    }
-//    if (currentToken.type == TokenType::lbrace) {
-//        setCurrentToken();
-//        if (not StmtList()) {
-//            return false;
-//        }
-//        if (currentToken.type == TokenType::rbrace) {
-//            setCurrentToken();
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-//    if (currentToken.type == TokenType::keyword and currentToken.value == "return") {
-//        setCurrentToken();
-//        if (not Expr()) {
-//            return false;
-//        }
-//        if (currentToken.type == TokenType::semicolon) {
-//            setCurrentToken();
-//            return true;
-//        }
-//        return false;
-//    }
-//    return false;
-//}
-//
-//bool Parser::AssignOrCallOp(){
-//    if(not AssignOrCall()){
-//        return false;
-//    }
-//    if(currentToken.type == TokenType::semicolon){
-//        setCurrentToken();
-//        return true;
-//    }
-//    return false;
-//}
-//
-//bool Parser::AssignOrCall(){
-//    if(currentToken.type == TokenType::kid){
-//        setCurrentToken();
-//        if(not AssignOrCallL()){
-//            return false;
-//        }
-//        return true;
-//    }
-//    return false;
-//}
-//
-//bool Parser::AssignOrCallL(){
-//
-//}
+bool Parser::DeclareStmt() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "DeclareStmt");
+    if (not Type()) {
+        return false;
+    }
+    callsHierarchy.emplace_back(current_depth, false, "", "DeclareStmt");
+    if (currentToken.type == TokenType::kid) {
+        callsHierarchy.emplace_back(current_depth + 1, true, currentToken.value, "");
+        setCurrentToken();
+    } else {
+        return false;
+    }
+    if (not DeclareStmtL()) {
+        return false;
+    }
+    call_depth = current_depth;
+    return true;
+}
 
+bool Parser::DeclareStmtL() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "DeclareStmtL");
+    if (currentToken.type == TokenType::lpar) {
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (not Param()) {
+            return false;
+        }
+        if (currentToken.type == TokenType::rpar) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (currentToken.type == TokenType::lbrace) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not StmtList()) {
+            return false;
+        }
+        if (currentToken.type == TokenType::rbrace) {
+            callsHierarchy.emplace_back(current_depth, false, "", "DeclareStmtL");
+            callsHierarchy.emplace_back(current_depth, false, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    } else if (currentToken.type == TokenType::opassign) {
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (currentToken.type == TokenType::knum) {
+            callsHierarchy.emplace_back(current_depth + 1, true, currentToken.value, "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not DeclVarList()) {
+            return false;
+        }
+        if (currentToken.type == TokenType::semicolon) {
+            callsHierarchy.emplace_back(current_depth, false, "", "DeclareStmtL");
+            callsHierarchy.emplace_back(current_depth, false, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    } else if (DeclVarList()) {
+        if (currentToken.type == TokenType::semicolon) {
+            callsHierarchy.emplace_back(current_depth + 1, false, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+            callsHierarchy.emplace_back(current_depth, false, "", "DeclareStmtL");
+            call_depth = current_depth;
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
+bool Parser::Type() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    if (currentToken.type == TokenType::keyword and (currentToken.value == "int" or currentToken.value == "char")) {
+        callsHierarchy.emplace_back(current_depth, true, "", "Type");
+        callsHierarchy.emplace_back(current_depth, false, "", "Type");
+        callsHierarchy.emplace_back(current_depth, false, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        call_depth = current_depth;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::DeclVarList() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    if (currentToken.type == TokenType::comma) {
+        callsHierarchy.emplace_back(current_depth, true, "", "DeclVarList");
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (currentToken.type == TokenType::kid) {
+            callsHierarchy.emplace_back(current_depth + 1, true, currentToken.value, "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not InitVar()) {
+            return false;
+        }
+        callsHierarchy.emplace_back(current_depth, false, "", "DeclVarList");
+        bool result = DeclVarList();
+        call_depth = current_depth;
+        return result;
+    }
+    callsHierarchy.emplace_back(current_depth, false, "", "DeclVarList");
+    call_depth = current_depth;
+    return true;
+}
+
+bool Parser::InitVar() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "InitVar");
+    if (currentToken.type != TokenType::opassign) {
+        return false;
+    }
+    callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+    setCurrentToken();
+    if (currentToken.type == TokenType::knum or
+        currentToken.type == TokenType::kchar) {
+        callsHierarchy.emplace_back(current_depth + 1, true, currentToken.value, "");
+        callsHierarchy.emplace_back(current_depth, false, "", "InitVar");
+        call_depth = current_depth;
+        setCurrentToken();
+        return true;
+    }
+    return false; // никаких UB
+}
+
+bool Parser::Param() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "Param");
+    if (Type()) {
+        callsHierarchy.emplace_back(current_depth, false, "", "Param");
+        if (currentToken.type == TokenType::kid) {
+            callsHierarchy.emplace_back(current_depth + 1, true, currentToken.value, "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not ParamList()) {
+            return false;
+        }
+    } else {
+        callsHierarchy.pop_back();
+        callsHierarchy.emplace_back(current_depth, false, "", "Param");
+    }
+    call_depth = current_depth;
+    return true;
+}
+
+bool Parser::ParamList() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    if (currentToken.type == TokenType::comma) {
+        callsHierarchy.emplace_back(current_depth, true, "", "ParamList");
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (not Type()) {
+            return false;
+        }
+        callsHierarchy.emplace_back(current_depth, false, "", "ParamList");
+        if (currentToken.type == TokenType::kid) {
+            callsHierarchy.emplace_back(current_depth + 1, true, currentToken.value, "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not ParamList()) {
+            return false;
+        }
+    } else {
+        callsHierarchy.emplace_back(current_depth, false, "", "ParamList");
+    }
+    call_depth = current_depth;
+    return true;
+}
+
+bool Parser::StmtList() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "StmtList");
+    if (not Stmt()) {
+        callsHierarchy.pop_back(); // вход в StmtList не нужен, потому что обращаемся в \eps
+        callsHierarchy.pop_back(); // для stmt
+        callsHierarchy.emplace_back(current_depth, false, "", "StmtList");
+        call_depth = current_depth;
+        return true;
+    }
+    callsHierarchy.emplace_back(current_depth, false, "", "StmtList");
+    if (not StmtList()) {
+        return false;
+    }
+    call_depth = current_depth;
+    return true;
+}
+
+bool Parser::Stmt() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "Stmt");
+    if (currentToken.type == TokenType::keyword and (currentToken.value == "int" or currentToken.value == "char")) {
+        callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+        if (DeclareStmt()) {
+            current_depth = call_depth;
+            return true;
+        }
+    }
+    if (currentToken.type == TokenType::semicolon) {
+        callsHierarchy.emplace_back(current_depth + 1, false, TokenTypeToString.at(currentToken.type), "");
+        callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+        setCurrentToken();
+        current_depth = call_depth;
+        return true;
+    }
+    if (currentToken.type == TokenType::kid) {
+        callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+        if (AssignOrCallOp()) {
+            current_depth = call_depth;
+            return true;
+        }
+    }
+    if (currentToken == Token{TokenType::keyword, "while"}) {
+        callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+        if (WhileOp()) {
+            current_depth = call_depth;
+            return true;
+        }
+    }
+    if (currentToken == Token{TokenType::keyword, "for"}) {
+        callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+        if (ForOp()) {
+            current_depth = call_depth;
+            return true;
+        }
+    }
+    if (currentToken == Token{TokenType::keyword, "if"}) {
+        callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+        if (IfOp()) {
+            current_depth = call_depth;
+            return true;
+        }
+    }
+    if (currentToken == Token{TokenType::keyword, "switch"}) {
+        callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+        if (SwitchOp()) {
+            current_depth = call_depth;
+            return true;
+        }
+    }
+    if (currentToken == Token{TokenType::keyword, "in"}) {
+        callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+        if (InOp()) {
+            current_depth = call_depth;
+            return true;
+        }
+    }
+    if (currentToken == Token{TokenType::keyword, "out"}) {
+        callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+        if (OutOp()) {
+            current_depth = call_depth;
+            return true;
+        }
+    }
+    if (currentToken.type == TokenType::lbrace) {
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (not StmtList()) {
+            return false;
+        }
+        if (currentToken.type == TokenType::rbrace) {
+            callsHierarchy.emplace_back(current_depth + 1, false, TokenTypeToString.at(currentToken.type), "");
+            callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+            call_depth = current_depth;
+            setCurrentToken();
+            return true;
+        } else {
+            return false;
+        }
+    }
+    if (currentToken.type == TokenType::keyword and currentToken.value == "return") {
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (not Expr()) {
+            return false;
+        }
+        if (currentToken.type == TokenType::semicolon) {
+            callsHierarchy.emplace_back(current_depth, false, "", "Stmt");
+            callsHierarchy.emplace_back(current_depth + 1, false, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+            call_depth = current_depth;
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
+
+bool Parser::AssignOrCallOp() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "AssignOrCallOp");
+    if (not AssignOrCall()) {
+        callsHierarchy.pop_back();
+        return false;
+    }
+    if (currentToken.type == TokenType::semicolon) {
+        callsHierarchy.emplace_back(current_depth, false, "", "AssignOrCallOp");
+        callsHierarchy.emplace_back(current_depth + 1, false, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        call_depth = current_depth;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::AssignOrCall() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "AssignOrCall");
+    if (currentToken.type == TokenType::kid) {
+        callsHierarchy.emplace_back(current_depth + 1, false, currentToken.value, "");
+        callsHierarchy.emplace_back(current_depth, false, "", "AssignOrCall");
+        setCurrentToken();
+        if (not AssignOrCallL()) {
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::AssignOrCallL() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "AssignOrCallL");
+    if (currentToken.type == TokenType::opassign) {
+        callsHierarchy.emplace_back(current_depth, false, "", "AssignOrCallL");
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (not Expr()) {
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    }
+    if (currentToken.type == TokenType::lpar) {
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (not Arg()) {
+            return false;
+        }
+        if (currentToken.type == TokenType::rpar) {
+            callsHierarchy.emplace_back(current_depth + 1, false, TokenTypeToString.at(currentToken.type), "");
+            callsHierarchy.emplace_back(current_depth, false, "", "AssignOrCallL");
+            call_depth = current_depth;
+            setCurrentToken();
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
+bool Parser::WhileOp() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "WhileOp");
+    if (currentToken == Token{TokenType::keyword, "while"}) {
+        callsHierarchy.emplace_back(current_depth + 1, false, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (currentToken.type == TokenType::lpar) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not Expr()) {
+            return false;
+        }
+        if (currentToken.type == TokenType::rpar) {
+            callsHierarchy.emplace_back(current_depth, false, "", "WhileOp");
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not Stmt()) {
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::ForOp() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "ForOp");
+    if (currentToken == Token{TokenType::keyword, "for"}) {
+        callsHierarchy.emplace_back(current_depth, false, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (currentToken.type == lpar) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not ForInit()) {
+            return false;
+        }
+        if (currentToken.type == semicolon) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not ForExpr()) {
+            return false;
+        }
+        if (currentToken.type == semicolon) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not ForLoop()) {
+            return false;
+        }
+        if (currentToken.type == rpar) {
+            callsHierarchy.emplace_back(current_depth, false, "", "ForOp");
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not Stmt()) {
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::ForInit() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "ForInit");
+    if(not AssignOrCall()){
+        callsHierarchy.pop_back();
+        callsHierarchy.emplace_back(current_depth, false, "", "ForInit");
+        return true;
+    }
+    callsHierarchy.emplace_back(current_depth, false, "", "ForInit");
+    current_depth = call_depth;
+    return true;
+}
+
+bool Parser::ForExpr() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "ForExpr");
+    Expr(); // TODO: ???
+    callsHierarchy.emplace_back(current_depth, false, "", "ForExpr");
+    current_depth = call_depth;
+    return true;
+}
+
+bool Parser::ForLoop() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    if (currentToken.type == TokenType::opinc) {
+        callsHierarchy.emplace_back(current_depth, true, "", "ForLoop");
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (currentToken.type == TokenType::kid) {
+            callsHierarchy.emplace_back(current_depth, false, "", "ForLoop");
+            callsHierarchy.emplace_back(current_depth + 1, false, currentToken.value, "");
+            current_depth = call_depth;
+            setCurrentToken();
+            return true;
+        }
+        return false;
+    }
+    callsHierarchy.emplace_back(current_depth, false, "", "ForLoop");
+    AssignOrCall(); // TODO: ???
+    current_depth = call_depth;
+
+    return true;
+}
+
+bool Parser::IfOp() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "IfOp");
+    if (currentToken == Token{TokenType::keyword, "if"}) {
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (currentToken.type == TokenType::lpar) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not Expr()) {
+            return false;
+        }
+        if (currentToken.type == TokenType::rpar) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not Stmt()) {
+            return false;
+        }
+        callsHierarchy.emplace_back(current_depth, false, "", "IfOp");
+        if (not ElsePart()) {
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::ElsePart() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    if (currentToken == Token{TokenType::keyword, "else"}) {
+        callsHierarchy.emplace_back(current_depth, true, "", "ElsePart");
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (not Stmt()) {
+
+        }
+        callsHierarchy.emplace_back(current_depth, false, "", "ElsePart");
+        call_depth = current_depth;
+        return true;
+    }
+    callsHierarchy.emplace_back(current_depth, false, "", "ElsePart");
+    call_depth = current_depth;
+    return true;
+}
+
+bool Parser::SwitchOp() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "SwitchOp");
+    if (currentToken == Token{TokenType::keyword, "switch"}) {
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (currentToken.type == TokenType::lpar) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not Expr()) {
+            return false;
+        }
+        if (currentToken.type == TokenType::rpar) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (currentToken.type == TokenType::lbrace) {
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not Cases()) {
+            return false;
+        }
+        callsHierarchy.emplace_back(current_depth, false, "", "SwitchOp");
+        if (currentToken.type == TokenType::rbrace) {
+            callsHierarchy.emplace_back(current_depth + 1, false, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::Cases() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "Cases");
+    if (not ACase()) {
+        return false;
+    }
+    if (not CasesL()) {
+        return false;
+    }
+    callsHierarchy.emplace_back(current_depth, false, "", "Cases");
+    call_depth = current_depth;
+    return true;
+}
+
+bool Parser::CasesL() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "CasesL");
+    if (ACase()) {
+        if (not CasesL()) {
+            return false;
+        }
+    }
+    callsHierarchy.emplace_back(current_depth, false, "", "CasesL");
+    call_depth = current_depth;
+    return true;
+}
+
+bool Parser::ACase() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "ACase");
+    if (currentToken == Token{TokenType::keyword, "case"}) {
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (currentToken.type == TokenType::knum) {
+            callsHierarchy.emplace_back(current_depth + 1, true, currentToken.value, "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (currentToken.type == TokenType::colon) {
+            callsHierarchy.emplace_back(current_depth, false, "", "ACase");
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            return false;
+        }
+        if (not StmtList()) {
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    }
+    if (currentToken == Token{TokenType::keyword, "default"}) {
+        callsHierarchy.emplace_back(current_depth + 1, true, currentToken.value, "");
+        setCurrentToken();
+        if (currentToken.type == TokenType::colon) {
+            callsHierarchy.emplace_back(current_depth, false, "", "ACase");
+            callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+        } else {
+            call_depth = current_depth;
+            return false;
+        }
+        if (not StmtList()) {
+            call_depth = current_depth;
+            return false;
+        }
+        call_depth = current_depth;
+        return true;
+    }
+    call_depth = current_depth;
+    return false;
+}
+
+bool Parser::InOp() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "InOp");
+    if (currentToken == Token{TokenType::keyword, "in"}) {
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        if (currentToken.type == TokenType::kid) {
+            callsHierarchy.emplace_back(current_depth + 1, true, currentToken.value, "");
+            setCurrentToken();
+        } else {
+            call_depth = current_depth;
+            return false;
+        }
+        if (currentToken.type == TokenType::semicolon) {
+            callsHierarchy.emplace_back(current_depth, false, "", "InOp");
+            callsHierarchy.emplace_back(current_depth + 1, false, TokenTypeToString.at(currentToken.type), "");
+            setCurrentToken();
+            call_depth = current_depth;
+            return true;
+        } else {
+            call_depth = current_depth;
+            return false;
+        }
+    }
+    call_depth = current_depth;
+    return false;
+}
+
+bool Parser::OutOp() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    callsHierarchy.emplace_back(current_depth, true, "", "OutOp");
+    if (currentToken == Token{TokenType::keyword, "out"}) {
+        callsHierarchy.emplace_back(current_depth, false, "", "OutOp");
+        callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
+        setCurrentToken();
+        bool result = OutOpL();
+        call_depth = current_depth;
+        return result;
+    }
+    call_depth = current_depth;
+    return false;
+}
+
+bool Parser::OutOpL() {
+    int current_depth = call_depth;
+    call_depth += 1;
+    if (currentToken.type == TokenType::kstr) {
+        callsHierarchy.emplace_back(current_depth, true, "", "OutOpL");
+        callsHierarchy.emplace_back(current_depth, false, "", "OutOpL");
+        callsHierarchy.emplace_back(current_depth + 1, false, currentToken.value, "");
+        call_depth = current_depth;
+        setCurrentToken();
+        return true;
+    }
+    callsHierarchy.emplace_back(current_depth, true, "", "OutOpL");
+    callsHierarchy.emplace_back(current_depth, false, "", "OutOpL");
+    if (Expr()) {
+        call_depth = current_depth;
+        return true;
+    }
+    call_depth = current_depth;
+    return false;
+}
 
 bool Parser::Expr() {
     int current_depth = call_depth;
@@ -347,7 +870,7 @@ bool Parser::Expr7() {
         return false;
     }
     callsHierarchy.emplace_back(current_depth, false, "", "E7");
-    bool result = this->Expr7List();
+    bool result = Expr7List();
     call_depth = current_depth;
     return result;
 }
@@ -355,16 +878,16 @@ bool Parser::Expr7() {
 bool Parser::Expr7List() {
     int current_depth = call_depth;
     call_depth += 1;
-    if (this->currentToken.type == TokenType::opor) {
+    if (currentToken.type == TokenType::opor) {
         callsHierarchy.emplace_back(current_depth, true, "", "E7L");
         callsHierarchy.emplace_back(current_depth + 1, true, "opor", "");
-        this->setCurrentToken();
+        setCurrentToken();
         if (!Expr6()) {
             call_depth = current_depth;
             return false;
         }
         callsHierarchy.emplace_back(current_depth, false, "", "E7L");
-        bool result = this->Expr7List();
+        bool result = Expr7List();
         call_depth = current_depth;
         return result;
     }
@@ -393,7 +916,7 @@ bool Parser::Expr6List() {
     if (this->currentToken.type == TokenType::opand) {
         callsHierarchy.emplace_back(current_depth, true, "", "E6L");
         callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
-        this->setCurrentToken();
+        setCurrentToken();
         if (!Expr5()) {
             return false;
         }
@@ -467,6 +990,7 @@ bool Parser::Expr5List() {
         }
     }
     callsHierarchy.emplace_back(current_depth, false, "", "E5L");
+    call_depth = current_depth;
     return true;
 }
 
@@ -491,6 +1015,7 @@ bool Parser::Expr4List() {
         callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
         setCurrentToken();
         if (not Expr3()) {
+            call_depth = current_depth;
             return false;
         }
         callsHierarchy.emplace_back(current_depth, false, "", "E4L");
@@ -671,6 +1196,7 @@ bool Parser::Arg() {
 }
 
 bool Parser::ArgList() {
+    const std::string func_name = "ArgList";
     int current_depth = call_depth;
     call_depth += 1;
     if (currentToken.type == TokenType::comma) {
@@ -678,6 +1204,8 @@ bool Parser::ArgList() {
         callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
         setCurrentToken();
         if (not Expr()) {
+            call_depth = current_depth;
+            std::cout << "NOT PARSED HERE: " + func_name;
             return false;
         }
         callsHierarchy.emplace_back(current_depth, false, "", "ArgList");
@@ -686,5 +1214,6 @@ bool Parser::ArgList() {
         return result;
     }
     callsHierarchy.emplace_back(current_depth, false, "", "ArgList");
+    call_depth = current_depth;
     return true;
 }

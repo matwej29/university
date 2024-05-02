@@ -23,18 +23,19 @@ enum TokenType {
     lbrace, // { 12
     rbrace, // 13
     semicolon, // 14
-    comma, // 15
-    period, // 16
-    opgt, // 17
-    opmul, // 18
-    kchar, // 19
-    kstr, // 20
-    kid, // 21
+    colon, // 15
+    comma, // 16
+    period, // 17
+    opgt, // 18
+    opmul, // 19
+    kchar, // 20
+    kstr, // 21
+    kid, // 22
     keyword, // 22
-    opminus, // 23
-    knum, // 24
-    INVALID, // 25
-    END_OF_FILE // 26
+    opminus, // 24
+    knum, // 25
+    INVALID, // 26
+    END_OF_FILE // 27
 };
 
 struct Token {
@@ -50,6 +51,15 @@ struct Token {
         : type(type)
         , value(std::move(value))
     {
+    }
+
+
+    bool operator == (const Token& other){
+        return std::tie(type, value) == std::tie(other.type, other.value);
+    }
+
+    bool operator != (const Token& other) {
+        return type != other.type or value != other.value;
     }
 };
 

@@ -32,6 +32,7 @@ const std::unordered_map<size_t, std::string> TokenTypeToString = {
     { TokenType::lbrace, "{" },
     { TokenType::rbrace, "}" },
     { TokenType::semicolon, ";" },
+    { TokenType::colon, ":" },
     { TokenType::comma, "," },
     { TokenType::period, "." },
     { TokenType::opgt, ">" },
@@ -178,6 +179,14 @@ struct Lexer {
                         this->next_char();
                         return Token { TokenType::semicolon };
                     },
+                },
+                {
+                        0,
+                        FILTER_CHAR<':'>,
+                        [this]() {
+                            this->next_char();
+                            return Token { TokenType::colon };
+                        },
                 },
                 {
                     0,

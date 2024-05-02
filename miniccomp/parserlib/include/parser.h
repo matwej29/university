@@ -25,6 +25,33 @@ private:
 
     void setCurrentToken();
 
+    bool DeclareStmt();
+    bool DeclareStmtL();
+    bool Type();
+    bool DeclVarList();
+    bool InitVar();
+    bool Param();
+    bool ParamList();
+    bool StmtList();
+    bool Stmt();
+    bool AssignOrCallOp();
+    bool AssignOrCall();
+    bool AssignOrCallL();
+    bool WhileOp();
+    bool ForOp();
+    bool ForInit();
+    bool ForExpr();
+    bool ForLoop();
+    bool IfOp();
+    bool ElsePart();
+    bool SwitchOp();
+    bool Cases();
+    bool CasesL();
+    bool ACase();
+    bool InOp();
+    bool OutOp();
+    bool OutOpL();
+
     bool Expr();
     bool Expr7();
     bool Expr7List();
@@ -42,7 +69,6 @@ private:
 
     bool Arg();
     bool ArgList();
-
 };
 
 #endif // MINICCOMP_PARSER_H
