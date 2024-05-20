@@ -4,7 +4,6 @@
 #include "parser.h"
 
 #include <iostream>
-#include <map>
 #include <utility>
 
 #include "lexer.hpp"
@@ -21,8 +20,8 @@ void Parser::setCurrentToken() {
 
 bool Parser::validate() {
     std::cout.setf(std::ios::unitbuf);
-    bool result = Parser::StmtList();
 
+    bool result = Parser::StmtList();
     if (currentToken.type != TokenType::END_OF_FILE) {
         return false;
     }
@@ -30,11 +29,10 @@ bool Parser::validate() {
     // graph
     std::vector<std::pair<std::string, int>> activeNonterms;
     bool wasLineBreak = false;
-    for (const auto &x: callsHierarchy) {
-        int current_depth = std::get<0>(x);
-        bool current_entered = std::get<1>(x);
-        std::string current_term = std::get<2>(x);
-        std::string current_nonterm = std::get<3>(x);
+    for (const auto &[current_depth,
+                current_entered,
+                current_term,
+                current_nonterm]: callsHierarchy) {
 
         if (wasLineBreak) {
             for (auto i = 0; i < current_depth - current_entered; ++i) {

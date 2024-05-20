@@ -6,8 +6,30 @@
 
 #include <functional>
 #include <istream>
+#include <map>
+#include <string>
+#include <expected>
+
 
 #include "lang.hpp"
+
+struct Atom {
+    std::string context;
+    std::string text;
+    std::string first;
+    std::string second;
+    std::string third;
+};
+
+struct VarOrFunc {
+    std::string name;
+    std::string scope;
+    std::string type;
+    std::string init;
+    std::string kind;
+    std::string length;
+    int cnt;
+};
 
 class Parser {
 public:
@@ -22,6 +44,20 @@ private:
     std::vector<Token> rollbackTokens;
     std::function<Token()> getNextToken;
     Token currentToken = { TokenType::INVALID, "" };
+
+
+    int labelCounter = 0;
+    int newVarCounter = 0;
+
+    std::string newLabel();
+    std::string alloc(const std::string &scope);
+    std::expected<std::string, std::string> addVar(const std::string &name, const std::string &scope, const std::string &type, const std::string &init);
+    std::expected<std::string, std::string> addFunc(const std::string &name, const std::string &type, const std::string &init);
+    std::expected<std::string, std::string> checkVar(const std::string &name, const std::string &scope);
+    std::expected<std::string, std::string> checkFunc(const std::string &name, const int length);
+    // context -> {name, scope, type, init, kind, length, cnt}
+    std::map<std::string, std::vector<VarOrFunc>> varTable;
+
 
     void setCurrentToken();
 
