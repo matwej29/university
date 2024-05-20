@@ -6,15 +6,9 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 #include "lang.hpp"
-
-const std::unordered_set<std::string> keywords = {
-    "int", "char", "if", "else", "switch", "case",
-    "while", "for", "return", "in", "out"
-};
 
 const std::unordered_map<size_t, std::string> TokenTypeToString = {
     { TokenType::opinc, "++" },
@@ -256,7 +250,7 @@ struct Lexer {
                     10,
                     FILTER_CHAR<'|'>,
                     [this]() {
-                        this->next_char();
+//                        this->next_char();
                         return std::nullopt;
                     },
                 },
@@ -264,7 +258,7 @@ struct Lexer {
                     12,
                     FILTER_CHAR<'&'>,
                     [this]() {
-                        this->next_char();
+//                        this->next_char();
                         return std::nullopt;
                     },
                 },

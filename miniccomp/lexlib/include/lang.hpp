@@ -6,6 +6,12 @@
 #define MINICCOMP_LANG_H
 
 #include <string>
+#include <unordered_set>
+
+const std::unordered_set<std::string> keywords = {
+        "int", "char", "if", "else", "switch", "case",
+        "while", "for", "return", "in", "out", "default"
+};
 
 enum TokenType {
     opinc, // 0
