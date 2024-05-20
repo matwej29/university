@@ -6,7 +6,7 @@ CMakeFiles/
 Makefile
 install_manifest.txt
 CTestTestfile.cmake
-cmake-build-debug
+cmake-build-*
 # build folders
 build/
 # CLion
