@@ -5,10 +5,11 @@
 #define MINICCOMP_PARSER_H
 
 #include <functional>
-#include <istream>
+#include <fstream>
 #include <map>
 #include <string>
 #include <expected>
+#include <stack>
 
 
 #include "lang.hpp"
@@ -31,80 +32,141 @@ struct VarOrFunc {
     int cnt;
 };
 
+using Semantic = std::expected<std::string, std::string>;
+
 class Parser {
 public:
-    explicit Parser(std::function<Token()> getNextToken);
+    Parser(std::function<Token()> getNextToken, std::string atoms_path)
+            : getNextToken(getNextToken), atoms_path(atoms_path) {
+        setCurrentToken();
+    };
+
     bool validate();
+
+    std::string atoms_path;
+    std::ofstream stream;
 
     std::vector<std::tuple<int, bool, std::string, std::string>> callsHierarchy;
     int call_depth = 0;
 
+    void printAtoms();
+
 private:
-    //    std::istream &stream;
     std::vector<Token> rollbackTokens;
     std::function<Token()> getNextToken;
-    Token currentToken = { TokenType::INVALID, "" };
-
+    Token currentToken = {TokenType::INVALID, ""};
 
     int labelCounter = 0;
     int newVarCounter = 0;
 
     std::string newLabel();
+
     std::string alloc(const std::string &scope);
-    std::expected<std::string, std::string> addVar(const std::string &name, const std::string &scope, const std::string &type, const std::string &init);
-    std::expected<std::string, std::string> addFunc(const std::string &name, const std::string &type, const std::string &init);
+
+    std::expected<std::string, std::string>
+    addVar(const std::string &name, const std::string &scope, const std::string &type, const std::string &init);
+
+    std::expected<std::string, std::string>
+    addFunc(const std::string &name, const std::string &type, const std::string &init);
+
     std::expected<std::string, std::string> checkVar(const std::string &name, const std::string &scope);
-    std::expected<std::string, std::string> checkFunc(const std::string &name, const int length);
+
+    std::expected<std::string, std::string> checkFunc(const std::string &name, const std::string &length);
+
     // context -> {name, scope, type, init, kind, length, cnt}
     std::map<std::string, std::vector<VarOrFunc>> varTable;
 
+    void generateAtom(const std::string &context, const std::string &text, const std::string &first,
+                      const std::string &second, const std::string &third);
+
+    std::vector<Atom> atoms;
+    std::stack<std::string> contextStack;
 
     void setCurrentToken();
 
     bool DeclareStmt();
-    bool DeclareStmtL();
-    bool Type();
-    bool DeclVarList();
-    bool InitVar();
-    bool Param();
-    bool ParamList();
+
+    bool DeclareStmtL(const std::string &type, const std::string &name);
+
+    Semantic Type();
+
+    bool DeclVarList(const std::string &type);
+
+    bool InitVar(const std::string &r, const std::string &s);
+
+    Semantic Param();
+
+    Semantic ParamList();
+
     bool StmtList();
+
     bool Stmt();
+
     bool AssignOrCallOp();
+
     bool AssignOrCall();
-    bool AssignOrCallL();
+
+    bool AssignOrCallL(const std::string &name);
+
     bool WhileOp();
+
     bool ForOp();
+
     bool ForInit();
-    bool ForExpr();
+
+    Semantic ForExpr();
+
     bool ForLoop();
+
     bool IfOp();
+
     bool ElsePart();
+
     bool SwitchOp();
-    bool Cases();
-    bool CasesL();
-    bool ACase();
+
+    bool Cases(const std::string &p, const std::string &end);
+
+    bool CasesL(const std::string &p, const std::string &end, const std::string &def);
+
+    Semantic ACase(const std::string &p, const std::string &end);
+
     bool InOp();
+
     bool OutOp();
+
     bool OutOpL();
 
-    bool Expr();
-    bool Expr7();
-    bool Expr7List();
-    bool Expr6();
-    bool Expr6List();
-    bool Expr5();
-    bool Expr5List();
-    bool Expr4();
-    bool Expr4List();
-    bool Expr3();
-    bool Expr3List();
-    bool Expr2();
-    bool Expr1();
-    bool Expr1List();
+    Semantic Expr();
 
-    bool Arg();
-    bool ArgList();
+    Semantic Expr7();
+
+    Semantic Expr7List(const std::string &funcID);
+
+    Semantic Expr6();
+
+    Semantic Expr6List(const std::string &funcID);
+
+    Semantic Expr5();
+
+    Semantic Expr5List(const std::string &funcID);
+
+    Semantic Expr4();
+
+    Semantic Expr4List(const std::string &funcID);
+
+    Semantic Expr3();
+
+    Semantic Expr3List(const std::string &funcID);
+
+    Semantic Expr2();
+
+    Semantic Expr1();
+
+    Semantic Expr1List(const std::string &funcID);
+
+    Semantic Arg();
+
+    Semantic ArgList();
 };
 
 #endif // MINICCOMP_PARSER_H

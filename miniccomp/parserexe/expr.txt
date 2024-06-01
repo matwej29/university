@@ -1,1 +1,9 @@
-3 * 3 * 3 * 3
+int translate(int n){
+    int result = 0;
+
+}
+
+
+int main() {
+
+}

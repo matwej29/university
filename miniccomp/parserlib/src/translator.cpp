@@ -3,6 +3,8 @@
 //
 
 #include "parser.h"
+#include <iostream>
+#include <algorithm>
 
 
 std::string Parser::newLabel() {
@@ -20,6 +22,7 @@ Parser::addVar(const std::string &name, const std::string &scope, const std::str
     }
     for (auto &var: varTable[scope]) {
         if (var.name == name) {
+            std::cout << "Variable " + name + " already exists in scope " + scope << std::endl;
             return std::unexpected("Variable " + name + " already exists in scope " + scope);
         }
     }
@@ -34,11 +37,12 @@ Parser::addFunc(const std::string &name, const std::string &type, const std::str
     }
     for (auto &var: varTable["-1"]) {
         if (var.name == name) {
+            std::cout << "Function " + name + " already exist in scope global";
             return std::unexpected("Function " + name + " already exists in global scope");
         }
     }
     varTable["-1"].push_back({name, "-1", type, "", "func", length, newVarCounter++});
-    return name;
+    return std::to_string(newVarCounter - 1);
 }
 
 std::expected<std::string, std::string> Parser::checkVar(const std::string &name, const std::string &scope) {
@@ -47,17 +51,49 @@ std::expected<std::string, std::string> Parser::checkVar(const std::string &name
     }
     for (auto &var: varTable[scope]) {
         if (var.name == name) {
-            return var.type;
+            return std::to_string(var.cnt);
         }
     }
     return std::unexpected("Variable " + name + " does not exist in scope " + scope);
 }
 
-std::expected<std::string, std::string> Parser::checkFunc(const std::string &name, const int length) {
+std::expected<std::string, std::string> Parser::checkFunc(const std::string &name, const std::string &length) {
     for (auto &var: varTable["-1"]) {
-        if (var.name == name && var.kind == "func" && var.length == std::to_string(length)) {
-            return var.type;
+        if (var.name == name && var.kind == "func" && var.length == length) {
+            return std::to_string(var.cnt);
         }
     }
-    return std::unexpected("Function " + name + " does not exist in scope global");
+    std::cout << "Function " + name + " does not exists in scope global" << std::endl;
+    return std::unexpected("Function " + name + " does not exists in scope global");
+}
+
+
+void Parser::generateAtom(const std::string &context, const std::string &text, const std::string &first,
+                          const std::string &second, const std::string &third) {
+    atoms.push_back({context, text, first, second, third});
+}
+
+
+void Parser::printAtoms() {
+    std::vector<VarOrFunc> sortedTable;
+    for (auto &scope: varTable) {
+        for (auto &var: scope.second) {
+            sortedTable.push_back(var);
+        }
+    }
+    std::ranges::sort(sortedTable, [](auto a, auto b) { return a.cnt < b.cnt; });
+
+    std::cout << "Name Scope Type Init Kind Length" << std::endl;
+    for (auto &var: sortedTable) {
+        std::cout << var.cnt << " " << var.name << " " << var.scope << " " << var.type << " " << var.init << " " << var.kind << " "
+                  << var.length << std::endl;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Context Text First Second Third" << std::endl;
+
+    for (auto &atom: atoms) {
+        std::cout << atom.context << " " << atom.text << " " << atom.first << " " << atom.second << " " << atom.third
+                  << std::endl;
+    }
 }

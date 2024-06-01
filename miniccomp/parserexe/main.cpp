@@ -7,8 +7,7 @@
 #include "lexer.hpp"
 #include "parser.h"
 
-int main()
-{
+int main() {
     std::ifstream file("expr.txt");
 
     if (!file.is_open()) {
@@ -18,6 +17,7 @@ int main()
 
     Lexer lex(file);
     auto a = [&lex]() { return lex.getNextToken(); };
-    Parser parser(a);
-    std::cout << parser.validate();
+    Parser parser(a, "output.txt");
+    std::cout << parser.validate() << std::endl;
+    parser.printAtoms();
 }
