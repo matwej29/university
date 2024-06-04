@@ -23,7 +23,7 @@ class Translator:
 
         self.current_pos += 1
 
-        print(f"{name} - {id}")
+        print(f"{name} {id}")
 
         if id != 0:
             lprint(">")
