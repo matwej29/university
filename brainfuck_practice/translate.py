@@ -23,7 +23,7 @@ class Translator:
 
         self.current_pos += 1
 
-        print(f"# {name} {id}")
+        print(f"{name} - {id}")
 
         if id != 0:
             lprint(">")
@@ -31,7 +31,13 @@ class Translator:
 
         return id
 
+    def sym_name(self, i):
+        if isinstance(i, str):
+            return i
+        return list(self.symbols.keys())[i]
+
     def move_pointer(self, dest):
+        # print(f"# moving to {self.sym_name(dest)}")
         if isinstance(dest, str):
             dest = self.symbols[dest]["id"]
 
@@ -45,10 +51,11 @@ class Translator:
             lprint("<" * distance)
 
         self.current_pos = dest
+        # print()
 
     # reg3
     def copy(self, source, dest):
-        print(f"# copy from {source} to {dest}")
+        print(f"copy from {self.sym_name(source)} to {self.sym_name(dest)}")
         self.move_pointer(source)
         lprint("[")
         # передвинуться к source, отнять
@@ -78,28 +85,30 @@ class Translator:
         lprint("]")
         print()
 
-        print()
         return
 
     def move(self, source, dest):
         # костыльненько, хаха
-        print(f"# move {source} to {dest}")
+        print(f"Передвинуть {self.sym_name(source)} в {self.sym_name(dest)}")
         self.zero(dest)
         self.copy(source, dest)
         self.zero(source)
         print()
 
     def zero(self, where):
-        print(f"# zero {where}")
+        print(f"zero {self.sym_name(where)}")
         self.move_pointer(where)
         lprint("[")
         dec()
         lprint("]")
+
         print()
 
     # reg1, reg2
     def sum(self, first, second, dest):
-        print(f"# sum {first} and {second}")
+        print(
+            f"Сумма {self.sym_name(first)} и {self.sym_name(second)} с результатом в {self.sym_name(dest)}:"
+        )
         self.zero("reg1")
         self.zero("reg2")
         self.zero("reg3")
@@ -110,11 +119,14 @@ class Translator:
 
         self.move("reg1", dest)
         print()
+        print()
 
     # reg1 reg2
     def diff(self, first, second, dest):
         # first - second
-        print(f"# diff {first} and {second}")
+        print(
+            f"Разность {self.sym_name(first)} и {self.sym_name(second)} с результатом в {self.sym_name(dest)}:"
+        )
         # отнимать от reg1 и reg2 пока reg2
         self.zero("reg1")
         self.zero("reg2")
@@ -123,32 +135,36 @@ class Translator:
         self.copy(second, "reg2")
 
         self.move_pointer("reg2")
-        lprint("[")
+        print("[")
         dec()
         self.move_pointer("reg1")
         dec()
         self.move_pointer("reg2")
-        lprint("]")
+        print("]")
 
         self.move("reg1", dest)
+        print()
         print()
 
     def mult(self, first, second, dest):
         # нужно second раз сложить first с самим собой (first должно быть заморожено)
-
+        print(
+            f"Произведение {self.sym_name(first)} и {self.sym_name(second)} с результатом в {self.sym_name(dest)}:"
+        )
         # в reg 4 запишем second
         self.zero("reg4")
         self.copy(second, "reg4")
 
         self.move_pointer("reg4")
-        lprint("[")
+        print("[")
         dec()
         self.zero("reg2")
         self.copy(first, "reg1")
         self.move_pointer("reg4")
-        lprint("]")
+        print("]")
 
         self.move("reg1", dest)
+        print()
         print()
 
 
@@ -164,12 +180,12 @@ T.symbol("reg3")
 T.symbol("reg4")
 
 print("# inputs")
-a = T.symbol("a", 1)
-b = T.symbol("b", 2)
-c = T.symbol("c", 3)
-n = T.symbol("n", 4)
-m = T.symbol("m", 5)
-z = T.symbol("z", 6)
+a = T.symbol("a")
+b = T.symbol("b")
+c = T.symbol("c")
+n = T.symbol("n")
+m = T.symbol("m")
+z = T.symbol("z")
 
 x = T.symbol("x")
 y = T.symbol("y")
@@ -190,46 +206,55 @@ t3 = T.symbol("t3")
 
 T.current_pos -= 1
 
+print("x = 9 * (c plus a):")
 T.sum(c, a, t2)
 T.mult(t9, t2, x)
 
+print("y = (7 plus b) * (c minus a)")
 T.sum(t7, b, t1)
 T.diff(c, a, t2)
 T.mult(t1, t2, y)
 
 # внешний цикл
+print("for (i = 0; i less than n; inc(i))")
 T.copy(n, i)
 T.move_pointer(i)
-lprint("[")
+print("[")
 dec()
 
+print("int x = 7 * (a minus b)")
 T.diff(a, b, t1)
 T.mult(t7, t1, x1)
 
+print("y = (x plus b) * (c minus 9)")
 T.sum(x1, b, t1)
 T.diff(c, t9, t2)
 T.mult(t1, t2, y)
 
 # внутренний цикл
+print("for (j = 0; j less than m; inc(j))")
 T.copy(m, j)
 T.move_pointer(j)
-lprint("[")
+print("[")
 dec()
 
+print("int t = (b plus x) * (z minus c)")
+print("int x = t")
 T.sum(b, x1, t1)
 T.diff(z, c, t2)
 T.mult(t1, t2, x2)
 
+print("s = s plus b minus (x minus c)")
 T.sum(s, b, t1)
 T.diff(x2, c, t2)
 T.diff(t1, t2, s)
 
 T.move_pointer(j)
-lprint("]")
+print("]")
 print()
 
 T.move_pointer("i")
-lprint("]")
+print("]")
 print()
 
 
