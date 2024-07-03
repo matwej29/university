@@ -85,8 +85,9 @@ void Parser::printAtoms() {
 
     std::cout << "Name Scope Type Init Kind Length" << std::endl;
     for (auto &var: sortedTable) {
-        std::cout << var.cnt << " " << var.name << " " << var.scope << " " << var.type << " " << var.init << " " << var.kind << " "
-                  << var.length << std::endl;
+        std::cout << var.cnt << " " << var.name << " " << var.scope << " " << var.type << " " << var.init << " " << var.
+                kind << " "
+                << var.length << std::endl;
     }
 
     std::cout << std::endl;
@@ -94,6 +95,6 @@ void Parser::printAtoms() {
 
     for (auto &atom: atoms) {
         std::cout << atom.context << " " << atom.text << " " << atom.first << " " << atom.second << " " << atom.third
-                  << std::endl;
+                << std::endl;
     }
 }

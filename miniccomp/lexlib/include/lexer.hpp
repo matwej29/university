@@ -11,43 +11,43 @@
 #include "lang.hpp"
 
 const std::unordered_map<size_t, std::string> TokenTypeToString = {
-    { TokenType::opinc, "++" },
-    { TokenType::opplus, "+" },
-    { TokenType::opeq, "==" },
-    { TokenType::opassign, "=" },
-    { TokenType::opne, "!=" },
-    { TokenType::opnot, "!" },
-    { TokenType::oplt, "<" },
-    { TokenType::ople, "<=" },
-    { TokenType::opor, "||" },
-    { TokenType::opand, "&&" },
-    { TokenType::lpar, "(" },
-    { TokenType::rpar, ")" },
-    { TokenType::lbrace, "{" },
-    { TokenType::rbrace, "}" },
-    { TokenType::semicolon, ";" },
-    { TokenType::colon, ":" },
-    { TokenType::comma, "," },
-    { TokenType::period, "." },
-    { TokenType::opgt, ">" },
-    { TokenType::opmul, "*" },
-    { TokenType::kchar, "char" },
-    { TokenType::kstr, "string" },
-    { TokenType::kid, "id" },
-    { TokenType::keyword, "keyword" },
-    { TokenType::opminus, "-" },
-    { TokenType::knum, "num" },
-    { TokenType::INVALID, "INVALID" },
-    { TokenType::END_OF_FILE, "EOF" },
+    {TokenType::opinc, "++"},
+    {TokenType::opdec, "--"},
+    {TokenType::opplus, "+"},
+    {TokenType::opeq, "=="},
+    {TokenType::opassign, "="},
+    {TokenType::opne, "!="},
+    {TokenType::opnot, "!"},
+    {TokenType::oplt, "<"},
+    {TokenType::ople, "<="},
+    {TokenType::opor, "||"},
+    {TokenType::opand, "&&"},
+    {TokenType::lpar, "("},
+    {TokenType::rpar, ")"},
+    {TokenType::lbrace, "{"},
+    {TokenType::rbrace, "}"},
+    {TokenType::semicolon, ";"},
+    {TokenType::colon, ":"},
+    {TokenType::comma, ","},
+    {TokenType::period, "."},
+    {TokenType::opgt, ">"},
+    {TokenType::opmul, "*"},
+    {TokenType::kchar, "char"},
+    {TokenType::kstr, "string"},
+    {TokenType::kid, "id"},
+    {TokenType::keyword, "keyword"},
+    {TokenType::opminus, "-"},
+    {TokenType::knum, "num"},
+    {TokenType::INVALID, "INVALID"},
+    {TokenType::END_OF_FILE, "EOF"},
 };
 
 inline bool FILTER_ANY(char) { return true; }
 
-template <char filter>
+template<char filter>
 bool FILTER_CHAR(char c) { return c == filter; }
 
-inline bool ANY_LETTER(char c)
-{
+inline bool ANY_LETTER(char c) {
     // magic numbers
     // taken from ASCII table
     return (65 <= c && c <= 90) || (97 <= c && c <= 122);
@@ -66,21 +66,19 @@ struct Edge {
 };
 
 struct Lexer {
-    std::istream& stream;
+    std::istream &stream;
     std::string buffer;
     char current_char;
     u_int current_state = 0;
 
-    explicit Lexer(std::istream& stream)
-        : stream(stream)
-    {
+    explicit Lexer(std::istream &stream)
+        : stream(stream) {
         current_char = 0;
         next_char();
     }
 
-    std::optional<Token> processState()
-    {
-        for (const Edge& edge : graph.at(current_state)) {
+    std::optional<Token> processState() {
+        for (const Edge &edge: graph.at(current_state)) {
             if (!edge.filter(current_char))
                 continue;
 
@@ -92,11 +90,10 @@ struct Lexer {
                 return std::nullopt;
             }
         }
-        return Token { INVALID };
+        return Token{INVALID};
     }
 
-    Token getNextToken()
-    {
+    Token getNextToken() {
         std::optional<Token> result;
         do {
             result = processState();
@@ -105,8 +102,7 @@ struct Lexer {
         return result.value();
     }
 
-    void next_char()
-    {
+    void next_char() {
         char c;
         if (stream.get(c)) {
             current_char = c;
@@ -115,8 +111,9 @@ struct Lexer {
         }
     }
 
-    const std::unordered_map<u_int, std::vector<Edge>> graph = {
-        { 0,
+    const std::unordered_map<u_int, std::vector<Edge> > graph = {
+        {
+            0,
             {
                 {
                     0,
@@ -139,7 +136,7 @@ struct Lexer {
                     FILTER_CHAR<'('>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::lpar };
+                        return Token{TokenType::lpar};
                     },
                 },
                 {
@@ -147,7 +144,7 @@ struct Lexer {
                     FILTER_CHAR<')'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::rpar };
+                        return Token{TokenType::rpar};
                     },
                 },
                 {
@@ -155,7 +152,7 @@ struct Lexer {
                     FILTER_CHAR<'{'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::lbrace };
+                        return Token{TokenType::lbrace};
                     },
                 },
                 {
@@ -163,7 +160,7 @@ struct Lexer {
                     FILTER_CHAR<'}'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::rbrace };
+                        return Token{TokenType::rbrace};
                     },
                 },
                 {
@@ -171,23 +168,23 @@ struct Lexer {
                     FILTER_CHAR<';'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::semicolon };
+                        return Token{TokenType::semicolon};
                     },
                 },
                 {
-                        0,
-                        FILTER_CHAR<':'>,
-                        [this]() {
-                            this->next_char();
-                            return Token { TokenType::colon };
-                        },
+                    0,
+                    FILTER_CHAR<':'>,
+                    [this]() {
+                        this->next_char();
+                        return Token{TokenType::colon};
+                    },
                 },
                 {
                     0,
                     FILTER_CHAR<','>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::comma };
+                        return Token{TokenType::comma};
                     },
                 },
                 {
@@ -195,7 +192,7 @@ struct Lexer {
                     FILTER_CHAR<'.'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::period };
+                        return Token{TokenType::period};
                     },
                 },
                 {
@@ -203,7 +200,7 @@ struct Lexer {
                     FILTER_CHAR<'>'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::opgt };
+                        return Token{TokenType::opgt};
                     },
                 },
                 {
@@ -211,7 +208,7 @@ struct Lexer {
                     FILTER_CHAR<'*'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::opmul };
+                        return Token{TokenType::opmul};
                     },
                 },
                 {
@@ -250,7 +247,7 @@ struct Lexer {
                     10,
                     FILTER_CHAR<'|'>,
                     [this]() {
-//                        this->next_char();
+                        //                        this->next_char();
                         return std::nullopt;
                     },
                 },
@@ -258,7 +255,7 @@ struct Lexer {
                     12,
                     FILTER_CHAR<'&'>,
                     [this]() {
-//                        this->next_char();
+                        //                        this->next_char();
                         return std::nullopt;
                     },
                 },
@@ -309,79 +306,89 @@ struct Lexer {
                 {
                     0,
                     FILTER_CHAR<EOF>,
-                    []() { return Token { END_OF_FILE }; },
+                    []() { return Token{END_OF_FILE}; },
                 },
-            } },
+            }
+        },
 
-        { 2,
+        {
+            2,
             {
                 {
                     0,
                     FILTER_CHAR<'='>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::ople };
+                        return Token{TokenType::ople};
                     },
                 },
                 {
                     0,
                     FILTER_ANY,
-                    []() { return Token { TokenType::oplt }; },
+                    []() { return Token{TokenType::oplt}; },
                 },
-            } },
+            }
+        },
 
-        { 4,
+        {
+            4,
             {
                 {
                     0,
                     FILTER_CHAR<'='>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::opne };
+                        return Token{TokenType::opne};
                     },
                 },
                 {
                     0,
                     FILTER_ANY,
-                    []() { return Token { TokenType::opnot }; },
+                    []() { return Token{TokenType::opnot}; },
                 },
-            } },
+            }
+        },
 
-        { 6,
+        {
+            6,
             {
                 {
                     0,
                     FILTER_CHAR<'='>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::opeq };
+                        return Token{TokenType::opeq};
                     },
                 },
                 {
                     0,
                     FILTER_ANY,
-                    []() { return Token { TokenType::opassign }; },
+                    []() { return Token{TokenType::opassign}; },
                 },
-            } },
+            }
+        },
 
-        { 8,
+        {
+            8,
             {
                 {
                     0,
                     FILTER_CHAR<'+'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::opinc };
+                        return Token{TokenType::opinc};
                     },
                 },
                 {
                     0,
                     FILTER_ANY,
-                    []() { return Token { TokenType::opplus }; },
+                    []() { return Token{TokenType::opplus}; },
                 },
-            } },
+            }
+        },
 
-        { 10,
+        {
+            10,
             {
                 {
                     11,
@@ -395,19 +402,22 @@ struct Lexer {
 
         },
 
-        { 11,
+        {
+            11,
             {
                 {
                     0,
                     FILTER_CHAR<'|'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::opor };
+                        return Token{TokenType::opor};
                     },
                 },
-            } },
+            }
+        },
 
-        { 12,
+        {
+            12,
             {
                 {
                     13,
@@ -417,26 +427,30 @@ struct Lexer {
                         return std::nullopt;
                     },
                 },
-            } },
+            }
+        },
 
-        { 13,
+        {
+            13,
             {
                 {
                     0,
                     FILTER_CHAR<'&'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::opand };
+                        return Token{TokenType::opand};
                     },
                 },
-            } },
+            }
+        },
 
-        { 14,
+        {
+            14,
             {
                 {
                     0,
                     FILTER_CHAR<'\''>,
-                    []() { return Token { TokenType::INVALID }; },
+                    []() { return Token{TokenType::INVALID}; },
                 },
                 {
                     16,
@@ -447,38 +461,42 @@ struct Lexer {
                         return std::nullopt;
                     },
                 },
-            } },
+            }
+        },
 
-        { 16,
+        {
+            16,
             {
                 {
                     0,
                     FILTER_CHAR<'\''>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::kchar, this->buffer };
+                        return Token{TokenType::kchar, this->buffer};
                     },
                 },
                 {
                     0,
                     FILTER_ANY,
-                    []() { return Token { TokenType::INVALID }; },
+                    []() { return Token{TokenType::INVALID}; },
                 },
-            } },
+            }
+        },
 
-        { 18,
+        {
+            18,
             {
                 {
                     0,
                     FILTER_CHAR<EOF>,
-                    []() { return Token { TokenType::INVALID, "EOF" }; },
+                    []() { return Token{TokenType::INVALID, "EOF"}; },
                 },
                 {
                     0,
                     FILTER_CHAR<'"'>,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::kstr, this->buffer };
+                        return Token{TokenType::kstr, this->buffer};
                     },
                 },
                 {
@@ -490,9 +508,11 @@ struct Lexer {
                         return std::nullopt;
                     },
                 },
-            } },
+            }
+        },
 
-        { 21,
+        {
+            21,
             {
                 {
                     21,
@@ -509,20 +529,30 @@ struct Lexer {
                     [this]() {
                         std::string identificator(this->buffer);
                         if ('0' <= identificator[0] and identificator[0] <= '9') {
-                            return Token { TokenType::INVALID };
+                            return Token{TokenType::INVALID};
                         }
 
                         if (keywords.contains(identificator)) {
-                            return Token { TokenType::keyword, identificator };
+                            return Token{TokenType::keyword, identificator};
                         } else {
-                            return Token { TokenType::kid, identificator };
+                            return Token{TokenType::kid, identificator};
                         }
                     },
                 },
-            } },
+            }
+        },
 
-        { 22,
+        {
+            22,
             {
+                {
+                    0,
+                    FILTER_CHAR<'-'>,
+                    [this]() {
+                        this->next_char();
+                        return Token{TokenType::opdec};
+                    },
+                },
                 {
                     23,
                     ANY_DIGIT,
@@ -537,12 +567,14 @@ struct Lexer {
                     FILTER_ANY,
                     [this]() {
                         this->next_char();
-                        return Token { TokenType::opminus };
+                        return Token{TokenType::opminus};
                     },
                 },
-            } },
+            }
+        },
 
-        { 23,
+        {
+            23,
             {
                 {
                     23,
@@ -556,9 +588,10 @@ struct Lexer {
                 {
                     0,
                     FILTER_ANY,
-                    [this]() { return Token { TokenType::knum, this->buffer }; },
+                    [this]() { return Token{TokenType::knum, this->buffer}; },
                 },
-            } }
+            }
+        }
     };
 };
 

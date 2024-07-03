@@ -82,6 +82,8 @@ private:
     std::vector<Atom> atoms;
     std::stack<std::string> contextStack;
 
+    void draw_calls_graph();
+
     void setCurrentToken();
 
     bool DeclareStmt();

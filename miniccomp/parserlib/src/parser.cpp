@@ -8,28 +8,18 @@
 
 #include "lexer.hpp"
 
-// сейчас я переделываю парсер, добавляя в него семантику
-
 // FIXME: rename to setNextToken
 void Parser::setCurrentToken() {
     this->currentToken = this->getNextToken();
 }
 
-bool Parser::validate() {
-    std::cout.setf(std::ios::unitbuf);
-
-    contextStack.emplace("-1");
-
-    bool result = Parser::StmtList();
-
-    // graph
-    std::vector<std::pair<std::string, int>> activeNonterms;
+void Parser::draw_calls_graph() {
+    std::vector<std::pair<std::string, int> > activeNonterms;
     bool wasLineBreak = false;
     for (const auto &[current_depth,
-                current_entered,
-                current_term,
-                current_nonterm]: callsHierarchy) {
-
+             current_entered,
+             current_term,
+             current_nonterm]: callsHierarchy) {
         if (wasLineBreak) {
             for (auto i = 0; i < current_depth - current_entered; ++i) {
                 bool found = false;
@@ -83,6 +73,16 @@ bool Parser::validate() {
             }
         }
     }
+}
+
+bool Parser::validate() {
+    std::cout.setf(std::ios::unitbuf);
+
+    contextStack.emplace("-1");
+
+    bool result = Parser::StmtList();
+
+    draw_calls_graph();
 
     if (currentToken.type != TokenType::END_OF_FILE) {
         std::cout << std::endl;
@@ -275,7 +275,7 @@ bool Parser::InitVar(const std::string &r, const std::string &s) {
     int current_depth = call_depth;
     call_depth += 1;
     callsHierarchy.emplace_back(current_depth, true, "", "InitVar");
-        callsHierarchy.emplace_back(current_depth, false, "", "InitVar");
+    callsHierarchy.emplace_back(current_depth, false, "", "InitVar");
     if (currentToken.type == TokenType::opassign) {
         callsHierarchy.emplace_back(current_depth + 1, true, TokenTypeToString.at(currentToken.type), "");
         setCurrentToken();
@@ -1478,25 +1478,21 @@ Semantic Parser::Expr1() {
             std::cout << "NOT PARSED HERE: " + func_name << '\n';
             return std::unexpected("currentToken is not kid");
         }
-    }
-        // TODO: to be implemented
-        // else if(currentToken.type == TokenType::opdec)
-        // {
-        //     setCurrentToken();
-        //     if (currentToken.type == TokenType::kid) {
-        //         callsHierarchy.emplace_back(current_depth, false, "", "E1");
-        //         callsHierarchy.emplace_back(current_depth, false, "opdec kid", "");
-        //         auto q = checkVar(currentToken.value, contextStack.top()).value();
-        //         generateAtom(contextStack.top(), "SUB", q, "'1'", q);
-        //         setCurrentToken();
-        //         call_depth = current_depth;
-        //         return q;
-        //     } else {
-        //         call_depth = current_depth;
-        //         return std::unexpected("currentToken is not kid");
-        //     }
-        // }
-    else if (this->currentToken.type == TokenType::lpar) {
+    } else if (currentToken.type == TokenType::opdec) {
+        setCurrentToken();
+        if (currentToken.type == TokenType::kid) {
+            callsHierarchy.emplace_back(current_depth, false, "", "E1");
+            callsHierarchy.emplace_back(current_depth, false, "opdec kid", "");
+            auto q = checkVar(currentToken.value, contextStack.top()).value();
+            generateAtom(contextStack.top(), "SUB", q, "'1'", q);
+            setCurrentToken();
+            call_depth = current_depth;
+            return q;
+        } else {
+            call_depth = current_depth;
+            return std::unexpected("currentToken is not kid");
+        }
+    } else if (this->currentToken.type == TokenType::lpar) {
         callsHierarchy.emplace_back(current_depth + 1, true, "lpar", "");
         setCurrentToken();
         auto Eresult = Expr();

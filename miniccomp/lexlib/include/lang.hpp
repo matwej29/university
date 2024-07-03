@@ -9,8 +9,8 @@
 #include <unordered_set>
 
 const std::unordered_set<std::string> keywords = {
-        "int", "char", "if", "else", "switch", "case",
-        "while", "for", "return", "in", "out", "default"
+    "int", "char", "if", "else", "switch", "case",
+    "while", "for", "return", "in", "out", "default"
 };
 
 enum TokenType {
@@ -41,7 +41,8 @@ enum TokenType {
     opminus, // 24
     knum, // 25
     INVALID, // 26
-    END_OF_FILE // 27
+    END_OF_FILE, // 27
+    opdec // 28
 };
 
 struct Token {
@@ -49,22 +50,20 @@ struct Token {
     std::string value;
 
     explicit Token(TokenType type)
-        : type(type)
-    {
+        : type(type) {
     }
 
     Token(TokenType type, std::string value)
         : type(type)
-        , value(std::move(value))
-    {
+          , value(std::move(value)) {
     }
 
 
-    bool operator == (const Token& other){
+    bool operator ==(const Token &other) {
         return std::tie(type, value) == std::tie(other.type, other.value);
     }
 
-    bool operator != (const Token& other) {
+    bool operator !=(const Token &other) {
         return type != other.type or value != other.value;
     }
 };

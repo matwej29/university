@@ -3,8 +3,7 @@
 
 #include "lexer.hpp"
 
-int main()
-{
+int main() {
     std::ifstream file("example.txt");
 
     if (!file.is_open()) {

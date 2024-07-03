@@ -1,9 +1,8 @@
-int translate(int n){
-    int result = 0;
-
-}
-
-
 int main() {
+    int a = 1;
+    a = --a;
 
+    int b = 2;
+    a = a + b;
+    out a;
 }
