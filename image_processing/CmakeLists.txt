@@ -1,0 +1,37 @@
+cmake_minimum_required(VERSION 3.15)
+project(image_processing)
+
+find_package(raylib 5.0 REQUIRED) # Requires at least version 3.0
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include_directories(src)
+
+add_executable(${PROJECT_NAME} 
+    main.cpp
+    src/GrayScale.cpp
+    src/ImageProcessorBase.cpp
+    src/SliderComponent.cpp
+    src/ImageComponent.cpp
+    src/ButtonComponent.cpp
+    src/DefaultImageComponent.cpp
+    src/Brightness.cpp
+    src/Negative.cpp
+)
+
+target_link_libraries(${PROJECT_NAME} raylib raygui)
+
+# Checks if OSX and links appropriate frameworks (only required on MacOS)
+if (APPLE)
+    target_link_libraries(${PROJECT_NAME} "-framework IOKit")
+    target_link_libraries(${PROJECT_NAME} "-framework Cocoa")
+    target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
+endif()
+
+set(BUILD_RAYGUI_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build raygui examples
+add_subdirectory(thirdparty/raygui/projects/CMake)
+
+add_link_options(empty_project PRIVATE
+    -fuse-ld=mold -Wl,--gdb-index
+)

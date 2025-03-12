@@ -1,0 +1,114 @@
+import math
+
+A = [[-1, -5/68, 11/68, -8/68],
+     [11/84, -1, -28/84, -6/84],
+     [0.08, -0.15, -1, 0.12],
+     [-0.21, 0.13, -0.27, -1]]
+
+# A = [[0.32, -0.05, 0.11, -0.08],
+#      [0.11, 0.16, -0.28, -0.06],
+#      [0.08, -0.15, 0, 0.12],
+#      [-0.21, 0.13, -0.27, 0]]
+
+
+d = [-215/68, 83/84, -1.16, -0.44]
+
+# d = [2.15, -0.83, 1.16, 0.44]
+
+A_init = [A[i].copy() for i in range(len(A))]
+d_init = d.copy()
+
+eps = 10 ** (-4)
+
+# ---------
+
+n = len(A)
+
+# normalization
+#
+for i in range(n):
+    elem = A[i][i]
+    for j in range(n):
+        if i == j:
+            A[i][j] = 0
+            continue
+        A[i][j] /= -elem
+    d[i] /= elem
+
+print(*A, sep='\n')
+print(d)
+print()
+
+# first iteration
+x_0 = d.copy()
+x_1 = [0 for i in range(n)]
+
+for i in range(n):
+    x_1[i] = sum([A[i][j] * x_0[j] for j in range(n)]) + d[i]
+
+print("x_0", x_0)
+print("x_1", x_1)
+print()
+
+# a, b, g
+
+alpha = max([sum([abs(A[i][j]) for j in range(n)]) for i in range(n)])
+
+beta = max([sum([abs(A[i][j]) for i in range(n)]) for j in range(n)])
+
+gamma = sum([A[i][j] ** 2 for i in range(n) for j in range(n)])
+
+param = 0  # alpha, beta, gamma
+metric = lambda a, b: print("metric is not defined")
+
+iter_count = -1
+
+if alpha <= 0.9:
+    param = alpha
+    metric = lambda a, b: max([abs(a[i] - b[i]) for i in range(n)])
+    iter_count = math.ceil(
+        math.log((eps * (1 - param)) / metric(x_0, x_1), param)
+    )
+    print("выбрана альфа, число итераций:", iter_count)
+elif beta <= 0.9:
+    param = beta
+    metric = lambda a, b: sum([abs(a[i] - b[i]) for i in range(n)])
+    iter_count = math.ceil(
+        math.log((eps * (1 - param)) / metric(x_0, x_1), param)
+    )
+    print("выбрана бета, число итераций:", iter_count)
+elif gamma <= 0.9:
+    param = gamma
+    metric = lambda a, b: math.sqrt(sum([(a[i] - b[i]) ** 2 for i in range(n)]))
+    iter_count = math.ceil(
+        math.log((eps * (1 - param)) / metric(x_0, x_1), param)
+    )
+    print("выбрана гамма, число итераций:", iter_count)
+print()
+
+print("alpha beta gamma")
+print(alpha, beta, gamma)
+print()
+
+print("iterations count:", iter_count)
+print()
+
+# calculating solution
+
+for it in range(2, iter_count + 1):
+    for i in range(n):
+        x_1[i] = sum([A[i][j] * x_0[j] for j in range(n)]) + d[i]
+    x_0 = x_1.copy()
+    if it > iter_count - 5:
+        print(f"x_{it}", x_1)
+
+# невязка
+fx = [0 for _ in range(n)]
+for i in range(n):
+    for j in range(n):
+        fx[i] += A_init[i][j] * x_1[j]
+    fx[i] -= d_init[i]
+
+print(f"Невязка:")
+for i in range(n):
+    print(f"{fx[i]:.4f}")
