@@ -6,6 +6,8 @@ find_package(raylib 5.0 REQUIRED) # Requires at least version 3.0
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_compile_options(-O1)
+
 include_directories(src)
 
 add_executable(${PROJECT_NAME} 
@@ -18,6 +20,11 @@ add_executable(${PROJECT_NAME}
     src/DefaultImageComponent.cpp
     src/Brightness.cpp
     src/Negative.cpp
+    src/Binarisation.cpp
+    src/Contrast.cpp
+    src/Gamma.cpp
+    src/Quantization.cpp
+    src/Zoom.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} raylib raygui)

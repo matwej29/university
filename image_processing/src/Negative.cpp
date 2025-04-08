@@ -11,11 +11,8 @@ private:
 public:
   NegativeMenu(ImageComponent &img) : img(img) {}
 
-  void render() override {
-    // Simple render method - no parameters to adjust for negative effect
-  }
+  void render() override {}
 
-  // dont suggest proccessImage()
   void processImage() override {
     for (int i = 0; i < img.orgImg.height * img.orgImg.width; ++i) {
       img.pixels[i].r = 255 - img.pixels[i].r;

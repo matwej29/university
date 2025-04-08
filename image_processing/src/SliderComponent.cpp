@@ -1,6 +1,7 @@
 #pragma once
 #include <raygui.h>
 #include <raylib.h>
+#include <string>
 
 class SliderComponent {
 public:
@@ -15,7 +16,8 @@ public:
   // render
   bool sliderValueChengedRendered() {
     float new_value = value;
-    GuiSliderBar({x, y, 100, 30}, "0", "255", &new_value, min, max);
+    GuiSliderBar({x, y, 100, 30}, std::to_string((int)min).c_str(),
+                 std::to_string((int)max).c_str(), &new_value, min, max);
 
     bool value_changed = false;
     if (value != new_value) {

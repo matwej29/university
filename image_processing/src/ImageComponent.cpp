@@ -7,23 +7,24 @@ public:
   Image orgImg;
   Texture2D txr;
 
+  Rectangle rect;
+
   Color *pixels;
 
-  ImageComponent() = default;
+  ImageComponent(Rectangle rect): rect(rect)  {};
 
-  // const auto b = pixels[j * img.width + i].b;
   void render() {
     if (!imageLoaded)
       return;
-    DrawTexture(txr, 350, 50, WHITE);
+    DrawTexture(txr, rect.x, rect.y, WHITE);
   }
 
   void reset_pixels() { pixels = LoadImageColors(orgImg); }
 
-  void loadNewImage(std::string filePath) {
+  void loadNewImage(const std::string &filePath) {
     orgImg = LoadImage(filePath.c_str());
     ImageFormat(&orgImg, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-    ImageResize(&orgImg, 300, 400);
+    ImageResize(&orgImg, rect.width, rect.height);
     pixels = LoadImageColors(orgImg);
     txr = LoadTextureFromImage(orgImg);
 

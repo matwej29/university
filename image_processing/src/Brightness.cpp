@@ -11,6 +11,7 @@ class BrightnessMenu : public ImageProcessorBase {
 
 public:
   BrightnessMenu(ImageComponent &img) : img(img), slider(210, 50, 0, 255) {}
+
   void render() {
     if (slider.sliderValueChengedRendered()) {
       img.pixels = LoadImageColors(img.orgImg);
@@ -18,6 +19,7 @@ public:
       processImage();
     }
   }
+
   void processImage() {
     std::cout << "Brightness processing" << std::endl;
     for (int i = 0; i < img.orgImg.height * img.orgImg.width; ++i) {

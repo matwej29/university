@@ -1,11 +1,16 @@
+#include "src/Binarisation.cpp"
+#include "src/Brightness.cpp"
 #include "src/Buttoncomponent.cpp"
+#include "src/Contrast.cpp"
 #include "src/DefaultImageComponent.cpp"
+#include "src/Gamma.cpp"
 #include "src/GrayScale.cpp"
 #include "src/ImageComponent.cpp"
 #include "src/ImageProcessorBase.cpp"
-#include "src/SliderComponent.cpp"
-#include "src/Brightness.cpp"
 #include "src/Negative.cpp"
+#include "src/Quantization.cpp"
+#include "src/SliderComponent.cpp"
+#include "src/Zoom.cpp"
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -30,22 +35,6 @@ void loadImageFromDroppedFiles(ImageComponent &img) {
   UnloadDroppedFiles(droppedFiles);
 }
 
-void setGrayScale(ImageComponent &img) {}
-
-void setBrightness(ImageComponent &img, int value) {
-  for (int i = 0; i < img.orgImg.height * img.orgImg.width; ++i) {
-    const auto r = img.pixels[i].r;
-    const auto g = img.pixels[i].g;
-    const auto b = img.pixels[i].b;
-
-    img.pixels[i].r = std::clamp(r + value, 0, 255);
-    img.pixels[i].g = std::clamp(g + value, 0, 255);
-    img.pixels[i].b = std::clamp(b + value, 0, 255);
-  }
-
-  UpdateTexture(img.txr, img.pixels);
-}
-
 // grayScale
 // brightness
 // negative
@@ -59,21 +48,27 @@ void setBrightness(ImageComponent &img, int value) {
 // histogram
 
 int main() {
-  const int screenWidth = 800;
+  const int screenWidth = 1200;
   const int screenHeight = 450;
 
-  ImageComponent image_to_process;
-
+  ImageComponent image_to_process(Rectangle{350, 50, 300, 400});
+  
   InitWindow(screenWidth, screenHeight, "Image Processing");
 
+  image_to_process.loadNewImage("./apexLegends.png");
+  
   SetTargetFPS(60);
 
   std::unique_ptr<ImageProcessorBase> selectedProcessor =
-      std::make_unique<DefaultImageMenu>(image_to_process);
+      // std::make_unique<DefaultImageMenu>(image_to_process);
+      std::make_unique<ZoomMenu>(image_to_process);
 
   std::vector<ButtonComponent> ImageProcessorButtons = {
-      {{40, 10, 150, 30}, "ORIGINAL", [&image_to_process, &selectedProcessor]() {
-         selectedProcessor = std::make_unique<DefaultImageMenu>(image_to_process);
+      {{40, 10, 150, 30},
+       "ORIGINAL",
+       [&image_to_process, &selectedProcessor]() {
+         selectedProcessor =
+             std::make_unique<DefaultImageMenu>(image_to_process);
          selectedProcessor->processImage();
        }},
 
@@ -84,15 +79,58 @@ int main() {
          selectedProcessor->processImage();
        }},
 
-      {{40, 90, 150, 30}, "BRIGHTNESS", [&image_to_process, &selectedProcessor]() {
-         selectedProcessor =
-             std::make_unique<BrightnessMenu>(image_to_process);
+      {{40, 90, 150, 30},
+       "BRIGHTNESS",
+       [&image_to_process, &selectedProcessor]() {
+         selectedProcessor = std::make_unique<BrightnessMenu>(image_to_process);
        }},
-      {{40, 130, 150, 30}, "NEGATIVE", [&image_to_process, &selectedProcessor]() {
+
+      {{40, 130, 150, 30},
+       "NEGATIVE",
+       [&image_to_process, &selectedProcessor]() {
          selectedProcessor = std::make_unique<NegativeMenu>(image_to_process);
          selectedProcessor->processImage();
        }},
-      };
+
+      {{40, 170, 150, 30},
+       "BINARISATION",
+       [&image_to_process, &selectedProcessor]() {
+         selectedProcessor =
+             std::make_unique<BinarisationMenu>(image_to_process);
+       }},
+
+      {{40, 210, 150, 30},
+       "MORE CONTRAST",
+       [&image_to_process, &selectedProcessor]() {
+         selectedProcessor =
+             std::make_unique<MoreContrastMenu>(image_to_process);
+       }},
+
+      {{40, 250, 150, 30},
+       "LESS CONTRAST",
+       [&image_to_process, &selectedProcessor]() {
+         selectedProcessor =
+             std::make_unique<LessContrastMenu>(image_to_process);
+       }},
+
+      {{40, 290, 150, 30},
+       "GAMMA",
+       [&image_to_process, &selectedProcessor]() {
+         selectedProcessor = std::make_unique<GammaMenu>(image_to_process);
+       }},
+
+      {{40, 330, 150, 30},
+       "QUANTIZATION",
+       [&image_to_process, &selectedProcessor]() {
+         selectedProcessor =
+             std::make_unique<QuantizationMenu>(image_to_process);
+       }},
+
+      {{40, 370, 150, 30}, "ZOOM", [&image_to_process, &selectedProcessor]() {
+        selectedProcessor = std::make_unique<ZoomMenu>(image_to_process);
+        selectedProcessor->processImage();
+      }},
+  };
 
   // Exit by pressing ESC or close button
   while (!WindowShouldClose()) {
