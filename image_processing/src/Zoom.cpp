@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <raylib.h>
-#include <stdexcept>
+#include <thread>
 #include <vector>
 
 class ZoomMenu : public ImageProcessorBase {
@@ -22,10 +22,15 @@ private:
 
   Rectangle zoom_src = {100, 100, 100, 100};
 
+  std::vector<std::thread> threads;
+
 public:
   ZoomMenu(ImageComponent &img) : img(img), slider(210, 50, 1, 10) {
     slider.value = zoom_level;
     zoomImage();
+
+    const uint hardware_threads = std::thread::hardware_concurrency();
+    threads.resize(hardware_threads);
   };
 
   void render() override {
@@ -55,7 +60,7 @@ public:
     for (int row = 0; row < 4; ++row) {
       std::vector<std::vector<double>> mat(4, std::vector<double>(5));
       for (int col = 0; col < 4; ++col) {
-        double xv = (double)col;
+        const double xv = (double)col;
         mat[col][0] = xv * xv * xv;
         mat[col][1] = xv * xv;
         mat[col][2] = xv;
@@ -74,7 +79,7 @@ public:
 
     std::vector<std::vector<double>> mat(4, std::vector<double>(5));
     for (int row = 0; row < 4; ++row) {
-      double xv = (double)row;
+      const double xv = (double)row;
       mat[row][0] = xv * xv * xv;
       mat[row][1] = xv * xv;
       mat[row][2] = xv;
@@ -88,8 +93,6 @@ public:
     return interpolated;
   }
 
-  void calculate_pixel() {}
-
 #pragma optimize("t") clang loop vectorize(enable) interleave(enable)
   void zoomImage() {
     const int zoom_image_height = zoom_src.height * zoom_level;
@@ -101,55 +104,62 @@ public:
 
     Color *zoomed_image_pixels = LoadImageColors(zoomed_image);
 
-    const auto linInt = [](int c1, int c2, float t) {
-      return c1 + (c2 - c1) * t;
-    };
+    for (int i = 0; i < threads.size(); ++i) {
+      threads[i] = std::thread([&, i]() {
+        for (int X = i; X < zoom_image_width; X += threads.size()) {
+          for (int Y = 0; Y < zoom_image_height; ++Y) {
+            const double x = (double)zoom_src.x + (double)X / zoom_level;
+            const double y = (double)zoom_src.y + (double)Y / zoom_level;
 
-    for (int X = 0; X < zoom_image_width; ++X) {
-      for (int Y = 0; Y < zoom_image_height; ++Y) {
-        const double x = (double)zoom_src.x + (double)X / zoom_level;
-        const double y = (double)zoom_src.y + (double)Y / zoom_level;
+            const int u = std::trunc(x);
+            const int v = std::trunc(y);
+            Color c = Color{0, 0, 0, 255};
 
-        const int u = std::trunc(x);
-        const int v = std::trunc(y);
-        Color c = Color{0, 0, 0, 255};
+            std::vector<std::vector<double>> img_color_frame(
+                4, std::vector<double>(4));
 
-        std::vector<std::vector<double>> img_color_frame(
-            4, std::vector<double>(4));
+            for (int i = -1; i <= 2; ++i) {
+              for (int j = -1; j <= 2; ++j) {
+                img_color_frame[j + 1][i + 1] =
+                    GetImageColor(img.orgImg, u + i, v + j).r;
+              }
+            }
+            c.r = std::round(
+                calculate_interpolated_color(x, y, u, v, img_color_frame));
+            c.r = std::clamp<unsigned char>(c.r, 0, 255);
 
-        for (int i = -1; i <= 2; ++i) {
-          for (int j = -1; j <= 2; ++j) {
-            img_color_frame[j + 1][i + 1] =
-                GetImageColor(img.orgImg, u + i, v + j).r;
+            for (int i = -1; i <= 2; ++i) {
+              for (int j = -1; j <= 2; ++j) {
+                img_color_frame[j + 1][i + 1] =
+                    GetImageColor(img.orgImg, u + i, v + j).g;
+              }
+            }
+            c.g = std::round(
+                calculate_interpolated_color(x, y, u, v, img_color_frame));
+            c.g = std::clamp<unsigned char>(c.g, 0, 255);
+
+            for (int i = -1; i <= 2; ++i) {
+              for (int j = -1; j <= 2; ++j) {
+                img_color_frame[j + 1][i + 1] =
+                    GetImageColor(img.orgImg, u + i, v + j).b;
+              }
+            }
+            c.b = std::round(
+                calculate_interpolated_color(x, y, u, v, img_color_frame));
+            c.b = std::clamp<unsigned char>(c.b, 0, 255);
+            zoomed_image_pixels[X + Y * zoom_image_width] = c;
           }
         }
-        c.r = std::round(calculate_interpolated_color(x, y, u, v, img_color_frame));
-        c.r = std::clamp<unsigned char>(c.r, 0, 255);
-
-        for (int i = -1; i <= 2; ++i) {
-          for (int j = -1; j <= 2; ++j) {
-            img_color_frame[j + 1][i + 1] =
-                GetImageColor(img.orgImg, u + i, v + j).g;
-          }
-        }
-        c.g = std::round(calculate_interpolated_color(x, y, u, v, img_color_frame));
-        c.g = std::clamp<unsigned char>(c.g, 0, 255);
-
-        for (int i = -1; i <= 2; ++i) {
-          for (int j = -1; j <= 2; ++j) {
-            img_color_frame[j + 1][i + 1] =
-                GetImageColor(img.orgImg, u + i, v + j).b;
-          }
-        }
-        c.b = std::round(calculate_interpolated_color(x, y, u, v, img_color_frame));
-        c.b = std::clamp<unsigned char>(c.b, 0, 255);
-
-        zoomed_image_pixels[X + Y * zoom_image_width] = c;
-      }
+      });
     }
+    for (auto &thread : threads) {
+      thread.join();
+    }
+
     txr = LoadTextureFromImage(zoomed_image);
     UpdateTexture(txr, zoomed_image_pixels);
 
     UnloadImage(zoomed_image);
+    UnloadImageColors(zoomed_image_pixels);
   }
 };
