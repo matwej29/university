@@ -1,9 +1,11 @@
 #pragma once
 
+#include "./ButtonComponent.cpp"
 #include "./GaussSolve.cpp"
 #include "./ImageComponent.cpp"
 #include "./ImageProcessorBase.cpp"
 #include "./SliderComponent.cpp"
+#include "Buttoncomponent.cpp"
 #include "raygui.h"
 #include <algorithm>
 #include <cmath>
@@ -14,9 +16,11 @@
 class ZoomMenu : public ImageProcessorBase {
 private:
   ImageComponent &img;
-  //   ImageComponent zoomed_image = ImageComponent({1000, 50, 100, 100});
+
   SliderComponent slider;
   float zoom_level = 10.;
+
+  ButtonComponent applyButton;
 
   Texture2D txr;
 
@@ -31,17 +35,85 @@ public:
 
     const uint hardware_threads = std::thread::hardware_concurrency();
     threads.resize(hardware_threads);
+
+    applyButton = ButtonComponent({210, 90, 100, 30}, "APPLY",
+                                  [&]() { this->processImage(); });
   };
 
   void render() override {
     if (slider.sliderValueChengedRendered()) {
       img.pixels = LoadImageColors(img.orgImg);
       zoom_level = slider.value;
-      processImage();
+      // processImage();
     }
-    // zoomed_image.render();
+    applyButton.processMouseInput();
 
+    processImageRegionSelection();
+
+    drawSelectionRectangle();
+
+    // draw zoomed image
     DrawTexture(txr, 800, 50, WHITE);
+
+    applyButton.render();
+  }
+
+  void drawSelectionRectangle() {
+    float x = zoom_src.x, y = zoom_src.y;
+    float width = zoom_src.width;
+    float height = zoom_src.height;
+    if (zoom_src.width < 0) {
+      width = -zoom_src.width;
+      x -= width;
+    }
+    if (zoom_src.height < 0) {
+      height = -zoom_src.height;
+      y -= height;
+    }
+    DrawRectangleLinesEx({img.rect.x + x, img.rect.y + y, width, height}, 2.,
+                         BLUE);
+  }
+
+  void processImageRegionSelection() {
+    const Vector2 mouse_pos = GetMousePosition();
+
+    if (!CheckCollisionPointRec(mouse_pos, img.rect)) {
+      return;
+    }
+
+    const Vector2 relative_mouse_pos = {mouse_pos.x - img.rect.x,
+                                        mouse_pos.y - img.rect.y};
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+      zoom_src.x = relative_mouse_pos.x;
+      zoom_src.y = relative_mouse_pos.y;
+
+      zoom_src.height = 1;
+      zoom_src.width = 1;
+    } else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+      if (zoom_src.width < 0) {
+        const float width = -zoom_src.width;
+        zoom_src.x -= width;
+        zoom_src.width = width;
+      }
+      if (zoom_src.height < 0) {
+        const float height = -zoom_src.height;
+        zoom_src.y -= height;
+        zoom_src.height = height;
+      }
+    } else if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+      const float x0 = zoom_src.x, y0 = zoom_src.y, x1 = relative_mouse_pos.x,
+                  y1 = relative_mouse_pos.y;
+
+      const float width = x1 - x0;
+      const float height = y1 - y0;
+
+      zoom_src.width = width;
+      zoom_src.height = height;
+    }
+
+    zoom_src.x = std::clamp<float>(zoom_src.x, 2, img.rect.width - 2);
+    zoom_src.y = std::clamp<float>(zoom_src.y, 2, img.rect.height - 2);
   }
 
   void processImage() override {
@@ -93,13 +165,49 @@ public:
     return interpolated;
   }
 
+  inline Color processPixel(const ImageComponent &img, const int u, const int v,
+                            const double x, const double y) {
+    Color c;
+    c.a = 255;
+    std::vector<std::vector<double>> img_color_frame(4, std::vector<double>(4));
+
+    for (int i = -1; i <= 2; ++i) {
+      for (int j = -1; j <= 2; ++j) {
+        img_color_frame[j + 1][i + 1] =
+            GetImageColor(img.orgImg, u + i, v + j).r;
+      }
+    }
+    c.r = std::round(calculate_interpolated_color(x, y, u, v, img_color_frame));
+    c.r = std::clamp<unsigned char>(c.r, 0, 255);
+
+    for (int i = -1; i <= 2; ++i) {
+      for (int j = -1; j <= 2; ++j) {
+        img_color_frame[j + 1][i + 1] =
+            GetImageColor(img.orgImg, u + i, v + j).g;
+      }
+    }
+    c.g = std::round(calculate_interpolated_color(x, y, u, v, img_color_frame));
+    c.g = std::clamp<unsigned char>(c.g, 0, 255);
+
+    for (int i = -1; i <= 2; ++i) {
+      for (int j = -1; j <= 2; ++j) {
+        img_color_frame[j + 1][i + 1] =
+            GetImageColor(img.orgImg, u + i, v + j).b;
+      }
+    }
+    c.b = std::round(calculate_interpolated_color(x, y, u, v, img_color_frame));
+    c.b = std::clamp<unsigned char>(c.b, 0, 255);
+
+    return c;
+  }
+
 #pragma optimize("t") clang loop vectorize(enable) interleave(enable)
   void zoomImage() {
     const int zoom_image_height = zoom_src.height * zoom_level;
     const int zoom_image_width = zoom_src.width * zoom_level;
 
     Image zoomed_image =
-        GenImageColor(zoom_image_height, zoom_image_width, WHITE);
+        GenImageColor(zoom_image_width, zoom_image_height, WHITE);
     ImageFormat(&zoomed_image, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 
     Color *zoomed_image_pixels = LoadImageColors(zoomed_image);
@@ -113,41 +221,9 @@ public:
 
             const int u = std::trunc(x);
             const int v = std::trunc(y);
-            Color c = Color{0, 0, 0, 255};
+            Color c = processPixel(img, u, v, x, y);
 
-            std::vector<std::vector<double>> img_color_frame(
-                4, std::vector<double>(4));
-
-            for (int i = -1; i <= 2; ++i) {
-              for (int j = -1; j <= 2; ++j) {
-                img_color_frame[j + 1][i + 1] =
-                    GetImageColor(img.orgImg, u + i, v + j).r;
-              }
-            }
-            c.r = std::round(
-                calculate_interpolated_color(x, y, u, v, img_color_frame));
-            c.r = std::clamp<unsigned char>(c.r, 0, 255);
-
-            for (int i = -1; i <= 2; ++i) {
-              for (int j = -1; j <= 2; ++j) {
-                img_color_frame[j + 1][i + 1] =
-                    GetImageColor(img.orgImg, u + i, v + j).g;
-              }
-            }
-            c.g = std::round(
-                calculate_interpolated_color(x, y, u, v, img_color_frame));
-            c.g = std::clamp<unsigned char>(c.g, 0, 255);
-
-            for (int i = -1; i <= 2; ++i) {
-              for (int j = -1; j <= 2; ++j) {
-                img_color_frame[j + 1][i + 1] =
-                    GetImageColor(img.orgImg, u + i, v + j).b;
-              }
-            }
-            c.b = std::round(
-                calculate_interpolated_color(x, y, u, v, img_color_frame));
-            c.b = std::clamp<unsigned char>(c.b, 0, 255);
-            zoomed_image_pixels[X + Y * zoom_image_width] = c;
+            zoomed_image_pixels[X + (Y + 1) * zoom_image_width] = c;
           }
         }
       });

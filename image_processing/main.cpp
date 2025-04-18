@@ -155,19 +155,6 @@ int main() {
 
     selectedProcessor->render();
 
-    // for (const auto &btn : ImageProcessorButtons) {
-    //   btn.render();
-    // }
-
-    // if (simpleSlider.sliderValueChengedRendered()) {
-    // refresh image
-    // grayscle
-    // brightness
-    // depends on slider
-
-    // active обработчик()
-    // }
-
     EndDrawing();
   }
 

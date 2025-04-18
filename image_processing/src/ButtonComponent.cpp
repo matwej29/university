@@ -12,6 +12,8 @@ public:
 
   bool hovered = false;
 
+  ButtonComponent() = default;
+
   ButtonComponent(Rectangle rect, std::string text, auto onPress)
       : text(text), rectangle(rect), onPress(onPress) {};
 
