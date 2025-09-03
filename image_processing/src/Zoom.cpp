@@ -28,8 +28,10 @@ private:
 
   std::vector<std::thread> threads;
 
+  std::thread detached_thread;
+
 public:
-  ZoomMenu(ImageComponent &img) : img(img), slider(210, 50, 1, 10) {
+  ZoomMenu(ImageComponent &img) : img(img), slider(210, 50, 1, 100) {
     slider.value = zoom_level;
     zoomImage();
 
@@ -201,7 +203,6 @@ public:
     return c;
   }
 
-#pragma optimize("t") clang loop vectorize(enable) interleave(enable)
   void zoomImage() {
     const int zoom_image_height = zoom_src.height * zoom_level;
     const int zoom_image_width = zoom_src.width * zoom_level;

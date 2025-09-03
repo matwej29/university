@@ -38,7 +38,3 @@ endif()
 
 set(BUILD_RAYGUI_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build raygui examples
 add_subdirectory(thirdparty/raygui/projects/CMake)
-
-add_link_options(empty_project PRIVATE
-    -fuse-ld=mold -Wl,--gdb-index
-)
