@@ -1,0 +1,42 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #1e293b;
+  border-radius: 8px;
+}
+
+.title {
+  text-align: center;
+  color: #fff;
+}
+
+.select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  background: #334155;
+  color: #fff;
+  border: 1px solid #475569;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.button:hover {
+  background: #2563eb;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

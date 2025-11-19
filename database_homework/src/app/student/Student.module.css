@@ -1,0 +1,78 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  color: #fff;
+  margin: 0;
+}
+
+.backButton {
+  padding: 0.5rem 1rem;
+  background: #475569;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.backButton:hover {
+  background: #64748b;
+}
+
+.taskList {
+  display: grid;
+  gap: 1rem;
+}
+
+.taskCard {
+  background: #1e293b;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s;
+  border: 1px solid #334155;
+}
+
+.taskCard:hover {
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+}
+
+.taskHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.taskBody {
+  color: #e2e8f0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.subjectTag {
+  background: #334155;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  color: #cbd5e1;
+}
+
+.loading {
+  text-align: center;
+  color: #94a3b8;
+  padding: 2rem;
+}
