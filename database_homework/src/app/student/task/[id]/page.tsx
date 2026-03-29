@@ -109,7 +109,7 @@ export default function SolveTaskPage({ params }: { params: { id: string } }) {
               className={styles.input}
               value={submittedAnswer}
               onChange={(e) => setSubmittedAnswer(e.target.value)}
-              placeholder="Ответ, который будет сверяться автоматически (если применимо)"
+              placeholder="Ответ на задание"
             />
           </div>
 
@@ -120,7 +120,7 @@ export default function SolveTaskPage({ params }: { params: { id: string } }) {
               className={styles.textarea}
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
-              placeholder="Опишите ход решения..."
+              placeholder="Напишите решение"
             />
           </div>
 

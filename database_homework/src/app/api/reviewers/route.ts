@@ -12,21 +12,31 @@ type ReviewerRow = {
 
 export async function GET() {
   try {
-    const result = await query<ReviewerRow>(
-      `SELECT r.id, r.full_name,
-              COALESCE(json_agg(rs.subject_name) FILTER (WHERE rs.subject_name IS NOT NULL), '[]') AS subjects
+    // Получаем плоский список (проверяющий -> предмет)
+    const result = await query<{ id: number; full_name: string; subject_name: string | null }>(
+      `SELECT r.id, r.full_name, rs.subject_name
          FROM reviewers r
          LEFT JOIN reviewer_subjects rs ON rs.reviewer_id = r.id
-        GROUP BY r.id
         ORDER BY r.full_name`
     );
-    const reviewers = result.rows.map((row) => ({
-      id: row.id,
-      fullName: row.full_name,
-      subjects: row.subjects ?? []
-    }));
-    console.log("Reviewers fetched:", reviewers.length);
-    return jsonOk({ reviewers });
+
+    // Группируем в JavaScript
+    const reviewersMap = new Map<number, { id: number; fullName: string; subjects: string[] }>();
+
+    for (const row of result.rows) {
+      if (!reviewersMap.has(row.id)) {
+        reviewersMap.set(row.id, {
+          id: row.id,
+          fullName: row.full_name,
+          subjects: []
+        });
+      }
+      if (row.subject_name) {
+        reviewersMap.get(row.id)!.subjects.push(row.subject_name);
+      }
+    }
+
+    return jsonOk({ reviewers: Array.from(reviewersMap.values()) });
   } catch (error) {
     return jsonServerError(error);
   }

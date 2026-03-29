@@ -1,0 +1,217 @@
+.container {
+  min-height: 100vh;
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.3rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userName {
+  color: white;
+}
+
+.logoutButton {
+  padding: 10px;
+  color: red;
+  background: transparent;
+  border: 1px solid red;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  background: darkred;
+  color: white;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #eee;
+  border-radius: 4px;
+  cursor: pointer;
+  color: black;
+}
+
+.tabActive {
+  background: #0070f3;
+  color: white;
+}
+
+.filterSection {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.filterLabel {
+  color: #555;
+}
+
+.filterSelect {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.solutionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.solutionCard {
+  padding: 1rem;
+  background: #f5f5f5;
+  border-radius: 6px;
+}
+
+.solutionHeader {
+  margin-bottom: 0.75rem;
+}
+
+.solutionMeta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.solutionId {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.taskText {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: black;
+}
+
+.solutionText {
+  color: #444;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+}
+
+.answers {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: black;
+}
+
+.answer {
+  display: flex;
+  gap: 5px;
+}
+
+.answerLabel {
+  color: #777;
+}
+
+.answerValue {
+  font-weight: 600;
+}
+
+.answerCorrect {
+  color: #16a34a;
+}
+
+.answerWrong {
+  color: #dc2626;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.takeButton {
+  padding: 0.4rem 0.8rem;
+  color: white;
+  background: #16a34a;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.takeButton:hover {
+  background: #15803d;
+}
+
+.gradeForm {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.gradeInput {
+  width: 70px;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.gradeButton {
+  padding: 0.4rem 0.8rem;
+  color: white;
+  background: #0070f3;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.gradeButton:hover {
+  background: #005bb5;
+}
+
+.gradeBadge {
+  padding: 0.2rem 0.5rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #16a34a;
+  border-radius: 4px;
+}
+
+.emptyState,
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #777;
+}
+
+.error {
+  color: #d00;
+  text-align: center;
+  padding: 1rem;
+}
+

@@ -62,11 +62,7 @@ export default function CreateTaskPage() {
     <div className={styles.container}>
       <h1 className={styles.title}>Создание нового задания</h1>
 
-      {success && (
-        <div className={styles.success}>
-          Задание успешно создано! Можно добавить еще одно.
-        </div>
-      )}
+      {success && <div className={styles.success}>Задание успешно создано</div>}
 
       {error && <div className={styles.error}>{error}</div>}
 
@@ -106,7 +102,7 @@ export default function CreateTaskPage() {
             value={correctAnswer}
             onChange={(e) => setCorrectAnswer(e.target.value)}
             required
-            placeholder="Ответ для автоматической сверки (если нужно)"
+            placeholder="Ответ"
           />
         </div>
 

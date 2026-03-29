@@ -1,37 +1,77 @@
 import Link from "next/link";
-import styles from "./Home.module.css";
 
 export default function Home() {
   return (
-    <main className={styles.container}>
-      <h1 className={styles.title}>ЕГЭ Проверка</h1>
-      <p className={styles.subtitle}>
+    <main style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "2rem" }}>
+        ЕГЭ Проверка
+      </h1>
+      <p style={{ textAlign: "center", marginBottom: "3rem", color: "#94a3b8" }}>
         Сервис для подготовки и проверки заданий ЕГЭ
       </p>
 
-      <div className={styles.grid}>
-        <Link href="/student" className={styles.card}>
-          <div className={styles.icon}>🎓</div>
-          <h2 className={styles.cardTitle}>Я Ученик</h2>
-          <p className={styles.cardDesc}>
-            Решайте задания по разным предметам и получайте оценки от экспертов.
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          alignItems: "center"
+        }}
+      >
+        <Link
+          href="/student"
+          style={{
+            padding: "1.5rem",
+            background: "#1e293b",
+            borderRadius: "8px",
+            textDecoration: "none",
+            color: "white",
+            width: "100%",
+            textAlign: "center",
+            border: "1px solid #334155"
+          }}
+        >
+          <h2 style={{ margin: "0 0 0.5rem" }}>🎓 Я Ученик</h2>
+          <p style={{ margin: 0, color: "#94a3b8" }}>
+            Решать задания и получать оценки
           </p>
         </Link>
 
-        <Link href="/reviewer/login" className={styles.card}>
-          <div className={styles.icon}>👨‍🏫</div>
-          <h2 className={styles.cardTitle}>Я Проверяющий</h2>
-          <p className={styles.cardDesc}>
-            Проверяйте решения учеников, выставляйте оценки и давайте
-            комментарии.
+        <Link
+          href="/reviewer/login"
+          style={{
+            padding: "1.5rem",
+            background: "#1e293b",
+            borderRadius: "8px",
+            textDecoration: "none",
+            color: "white",
+            width: "100%",
+            textAlign: "center",
+            border: "1px solid #334155"
+          }}
+        >
+          <h2 style={{ margin: "0 0 0.5rem" }}>👨‍🏫 Я Проверяющий</h2>
+          <p style={{ margin: 0, color: "#94a3b8" }}>
+            Проверять решения и ставить оценки
           </p>
         </Link>
 
-        <Link href="/admin/tasks/create" className={styles.card}>
-          <div className={styles.icon}>⚙️</div>
-          <h2 className={styles.cardTitle}>Администратор</h2>
-          <p className={styles.cardDesc}>
-            Создавайте новые задания и управляйте контентом платформы.
+        <Link
+          href="/admin/tasks/create"
+          style={{
+            padding: "1.5rem",
+            background: "#1e293b",
+            borderRadius: "8px",
+            textDecoration: "none",
+            color: "white",
+            width: "100%",
+            textAlign: "center",
+            border: "1px solid #334155"
+          }}
+        >
+          <h2 style={{ margin: "0 0 0.5rem" }}>⚙️ Администратор</h2>
+          <p style={{ margin: 0, color: "#94a3b8" }}>
+            Создавать новые задания
           </p>
         </Link>
       </div>

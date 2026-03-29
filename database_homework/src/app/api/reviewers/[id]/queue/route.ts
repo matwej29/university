@@ -66,8 +66,7 @@ export async function POST(
             AND s.score IS NULL
             AND t.subject_name = ANY($1)
           ORDER BY s.created_at ASC
-          LIMIT 1
-          FOR UPDATE SKIP LOCKED`,
+          LIMIT 1`,
         [filteredSubjects]
       );
 
